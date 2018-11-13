@@ -10,6 +10,7 @@ describe('The javascript parser', () => {
     });
 
     it('is parsing a simple variable declaration correctly', () => {
+        console.log(JSON.stringify(parseCode('let a = 1;')));
         assert.equal(
             JSON.stringify(parseCode('let a = 1;')),
             '{"type":"Program","body":[{"type":"VariableDeclaration","declarations":[{"type":"VariableDeclarator","id":{"type":"Identifier","name":"a"},"init":{"type":"Literal","value":1,"raw":"1"}}],"kind":"let"}],"sourceType":"script"}'
