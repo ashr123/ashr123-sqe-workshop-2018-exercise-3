@@ -2,6 +2,7 @@ import assert from 'assert';
 import {parseCode} from '../src/js/code-analyzer';
 
 describe('The javascript parser', () => {
+    console.log(JSON.stringify(parseCode('')));
     it('is parsing an empty function correctly', () => {
         assert.equal(
             JSON.stringify(parseCode('')),
