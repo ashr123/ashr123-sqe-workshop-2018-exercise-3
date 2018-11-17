@@ -1,3 +1,5 @@
+import {generate} from 'escodegen';
+
 interface Program {
     type: 'Program';
     sourceType: 'script';
@@ -63,7 +65,10 @@ interface Literal {
     type: 'Literal';
     value: boolean | number | string | RegExp | null;
     raw: string;
-    regex?: { pattern: string, flags: string };
+    regex?: {
+        pattern: string,
+        flags: string
+    };
     loc?: SourceLocation;
 }
 
@@ -209,7 +214,7 @@ interface WhileStatement {
     loc?: SourceLocation;
 }
 
-
+/*---------------------------------------------------------------------------*/
 export function parseStatementListItem(statement: StatementListItem, table: line[]): line[] {
     function pushLine(line: number,
                       type: string,
@@ -223,8 +228,9 @@ export function parseStatementListItem(statement: StatementListItem, table: line
         case 'FunctionDeclaration':
             pushLine(statement.id.loc.start.line, 'Function Declaration', statement.id.name);
             statement.params.forEach((param: Identifier) => pushLine(param.loc.start.line,
-                'variable declaration', param.name));
-            statement.body.body.forEach((expressionStatement: StatementListItem) => parseStatementListItem(expressionStatement, table));
+                'Variable Declaration', param.name));
+            statement.body.body.forEach((expressionStatement: StatementListItem) =>
+                parseStatementListItem(expressionStatement, table));
             break;
         case 'VariableDeclaration':
             statement.declarations.forEach((decl: VariableDeclarator) => {
@@ -233,6 +239,12 @@ export function parseStatementListItem(statement: StatementListItem, table: line
             break;
     }
     return table;
+}
+
+/*---------------------------------------------------------------------------*/
+
+function aaa(a, b, c) {
+    let qq = 5;
 }
 
 let json1: Program = {

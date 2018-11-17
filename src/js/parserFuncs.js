@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/*---------------------------------------------------------------------------*/
 function parseStatementListItem(statement, table) {
     function pushLine(line, type, name = '', condition = '', value = '') {
         table.push({ line: line, type: type, name: name, condition: condition, value: value });
@@ -7,7 +8,7 @@ function parseStatementListItem(statement, table) {
     switch (statement.type) {
         case 'FunctionDeclaration':
             pushLine(statement.id.loc.start.line, 'Function Declaration', statement.id.name);
-            statement.params.forEach((param) => pushLine(param.loc.start.line, 'variable declaration', param.name));
+            statement.params.forEach((param) => pushLine(param.loc.start.line, 'Variable Declaration', param.name));
             statement.body.body.forEach((expressionStatement) => parseStatementListItem(expressionStatement, table));
             break;
         case 'VariableDeclaration':
@@ -18,6 +19,10 @@ function parseStatementListItem(statement, table) {
     return table;
 }
 exports.parseStatementListItem = parseStatementListItem;
+/*---------------------------------------------------------------------------*/
+function aaa(a, b, c) {
+    let qq = 5;
+}
 let json1 = {
     'type': 'Program',
     'body': [

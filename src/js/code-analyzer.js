@@ -2,10 +2,6 @@
 import * as esprima from 'esprima';
 import {parseStatementListItem} from './parserFuncs'
 
-function aaa(a, b, c) {
-    let qq = 5;
-}
-
 export const parseCode = codeToParse => {
     let parsedCode = esprima.parseScript(codeToParse, {loc: true});
     let ElementTable = [];
