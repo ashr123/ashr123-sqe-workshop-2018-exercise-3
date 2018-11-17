@@ -1,6 +1,5 @@
 import assert from 'assert';
 import * as codeAnalyzer from '../src/js/code-analyzer';
-import {generate} from 'escodegen';
 
 describe('The javascript parser', () => {
     it('is parsing an empty function correctly', () => {
@@ -18,106 +17,7 @@ describe('The javascript parser', () => {
     });
 
     it('Experiments!!!', () => {
-        // console.log(generate({
-        //     'type': 'VariableDeclaration',
-        //     'declarations': [
-        //         {
-        //             'type': 'VariableDeclarator',
-        //             'id': {
-        //                 'type': 'Identifier',
-        //                 'name': 'low',
-        //                 'loc': {
-        //                     'start': {
-        //                         'line': 2,
-        //                         'column': 8
-        //                     },
-        //                     'end': {
-        //                         'line': 2,
-        //                         'column': 11
-        //                     }
-        //                 }
-        //             },
-        //             'init': null,
-        //             'loc': {
-        //                 'start': {
-        //                     'line': 2,
-        //                     'column': 8
-        //                 },
-        //                 'end': {
-        //                     'line': 2,
-        //                     'column': 11
-        //                 }
-        //             }
-        //         },
-        //         {
-        //             'type': 'VariableDeclarator',
-        //             'id': {
-        //                 'type': 'Identifier',
-        //                 'name': 'high',
-        //                 'loc': {
-        //                     'start': {
-        //                         'line': 2,
-        //                         'column': 13
-        //                     },
-        //                     'end': {
-        //                         'line': 2,
-        //                         'column': 17
-        //                     }
-        //                 }
-        //             },
-        //             'init': null,
-        //             'loc': {
-        //                 'start': {
-        //                     'line': 2,
-        //                     'column': 13
-        //                 },
-        //                 'end': {
-        //                     'line': 2,
-        //                     'column': 17
-        //                 }
-        //             }
-        //         },
-        //         {
-        //             'type': 'VariableDeclarator',
-        //             'id': {
-        //                 'type': 'Identifier',
-        //                 'name': 'mid',
-        //                 'loc': {
-        //                     'start': {
-        //                         'line': 2,
-        //                         'column': 19
-        //                     },
-        //                     'end': {
-        //                         'line': 2,
-        //                         'column': 22
-        //                     }
-        //                 }
-        //             },
-        //             'init': null,
-        //             'loc': {
-        //                 'start': {
-        //                     'line': 2,
-        //                     'column': 19
-        //                 },
-        //                 'end': {
-        //                     'line': 2,
-        //                     'column': 22
-        //                 }
-        //             }
-        //         }
-        //     ],
-        //     'kind': 'let',
-        //     'loc': {
-        //         'start': {
-        //             'line': 2,
-        //             'column': 4
-        //         },
-        //         'end': {
-        //             'line': 2,
-        //             'column': 23
-        //         }
-        //     }
-        // }));
+        // console.log(generate(null));
 
     });
 });

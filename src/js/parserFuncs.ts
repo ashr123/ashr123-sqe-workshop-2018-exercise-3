@@ -4,7 +4,7 @@ interface Program {
     type: 'Program';
     sourceType: 'script';
     body: StatementListItem[];
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 interface Position {
@@ -16,13 +16,12 @@ interface SourceLocation {
     start: Position;
     end: Position;
     source?: string | null;
-    loc?: SourceLocation;
 }
 
 type Expression =
     Identifier
     | Literal
-    | FunctionExpression
+    // | FunctionExpression
     | ConditionalExpression
     | AssignmentExpression
     | BinaryExpression
@@ -34,7 +33,7 @@ interface UnaryExpression {
     operator: '+' | '-' | '~' | '!' | 'delete' | 'void' | 'typeof';
     argument: Expression;
     prefix: true;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 interface BinaryExpression {
@@ -44,13 +43,13 @@ interface BinaryExpression {
         '<' | '>' | '<=' | '<<' | '>>' | '>>>';
     left: Expression;
     right: Expression;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 interface Identifier {
     type: 'Identifier';
     name: string;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 interface MemberExpression {
@@ -58,7 +57,7 @@ interface MemberExpression {
     computed: boolean;
     object: Expression;
     property: Expression;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 interface Literal {
@@ -69,18 +68,7 @@ interface Literal {
         pattern: string,
         flags: string
     };
-    loc?: SourceLocation;
-}
-
-interface FunctionExpression {
-    type: 'FunctionExpression';
-    id: Identifier | null;
-    params: Identifier[];
-    body: BlockStatement;
-    generator: boolean;
-    async: boolean;
-    expression: boolean;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 interface ConditionalExpression {
@@ -88,7 +76,7 @@ interface ConditionalExpression {
     test: Expression;
     consequent: Expression;
     alternate: Expression;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 interface AssignmentExpression {
@@ -97,7 +85,7 @@ interface AssignmentExpression {
         '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|=';
     left: Expression;
     right: Expression;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 type Statement =
@@ -120,13 +108,13 @@ type StatementListItem = Declaration | Statement;
 interface BlockStatement {
     type: 'BlockStatement';
     body: StatementListItem[];
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 interface BreakStatement {
     type: 'BreakStatement';
     label: Identifier | null;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 // type FunctionParameter = Identifier;
@@ -136,10 +124,10 @@ interface DoWhileStatement {
     type: 'DoWhileStatement';
     body: Statement;
     test: Expression;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
-interface line {
+interface Line {
     line: number,
     type: string,
     name: string,
@@ -149,14 +137,14 @@ interface line {
 
 interface EmptyStatement {
     type: 'EmptyStatement';
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 interface ExpressionStatement {
     type: 'ExpressionStatement';
     expression: Expression;
     directive?: string;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 interface ForStatement {
@@ -165,8 +153,19 @@ interface ForStatement {
     test: Expression | null;
     update: Expression | null;
     body: Statement;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
+
+// interface FunctionExpression {
+//     type: 'FunctionExpression';
+//     id: Identifier | null;
+//     params: Identifier[];
+//     body: BlockStatement;
+//     generator: boolean;
+//     async: boolean;
+//     expression: boolean;
+//     loc: SourceLocation;
+// }
 
 interface FunctionDeclaration {
     type: 'FunctionDeclaration';
@@ -176,7 +175,7 @@ interface FunctionDeclaration {
     generator: boolean;
     async: boolean;
     expression: false;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 interface IfStatement {
@@ -184,38 +183,38 @@ interface IfStatement {
     test: Expression;
     consequent: Statement;
     alternate?: Statement;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 interface ReturnStatement {
     type: 'ReturnStatement';
     argument: Expression | null;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 interface VariableDeclaration {
     type: 'VariableDeclaration';
     declarations: VariableDeclarator[];
     kind: 'var' | 'const' | 'let';
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 interface VariableDeclarator {
     type: 'VariableDeclarator';
     id: Identifier;
     init: Expression | null;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 interface WhileStatement {
     type: 'WhileStatement';
     test: Expression;
     body: Statement;
-    loc?: SourceLocation;
+    loc: SourceLocation;
 }
 
 /*---------------------------------------------------------------------------*/
-export function parseStatementListItem(statement: StatementListItem, table: line[]): line[] {
+export function parseStatementListItem(statement: StatementListItem, table: Line[]): Line[] {
     function pushLine(line: number,
                       type: string,
                       name: string = '',
@@ -224,19 +223,84 @@ export function parseStatementListItem(statement: StatementListItem, table: line
         table.push({line: line, type: type, name: name, condition: condition, value: value});
     }
 
+    function parseExpression(expression: Expression) {
+        switch (expression.type) {
+            case 'Identifier':
+                pushLine(expression.loc.start.line, 'Identifier', expression.name);
+                break;
+            case 'Literal':
+                pushLine(expression.loc.start.line, 'Literal', '', '', expression.raw);
+                break;
+            // case 'FunctionExpression':
+            //
+            //     break;
+            // case 'ConditionalExpression':
+            //
+            //     break;
+            case 'AssignmentExpression':
+                pushLine(expression.loc.start.line, 'Assignment Expression',
+                    expression.left.type === 'Identifier' ? expression.left.name : null,
+                    '',
+                    generate(expression.right));
+                break;
+            // case 'BinaryExpression':
+            //
+            //     break;
+            // case 'MemberExpression':
+            //
+            //     break;
+            // case 'UnaryExpression':
+            //
+        }
+    }
+
     switch (statement.type) {
-        case 'FunctionDeclaration':
-            pushLine(statement.id.loc.start.line, 'Function Declaration', statement.id.name);
-            statement.params.forEach((param: Identifier) => pushLine(param.loc.start.line,
-                'Variable Declaration', param.name));
-            statement.body.body.forEach((expressionStatement: StatementListItem) =>
+        case 'BlockStatement':
+            statement.body.forEach((expressionStatement: StatementListItem) =>
                 parseStatementListItem(expressionStatement, table));
             break;
-        case 'VariableDeclaration':
-            statement.declarations.forEach((decl: VariableDeclarator) => {
-
-            });
+        case 'FunctionDeclaration':
+            pushLine(statement.loc.start.line, 'Function Declaration', statement.id.name);
+            statement.params.forEach((param: Identifier) => pushLine(param.loc.start.line,
+                'Variable Declaration', param.name));
+            parseStatementListItem(statement.body, table);
             break;
+        case 'VariableDeclaration':
+            statement.declarations.forEach((decl: VariableDeclarator) =>
+                pushLine(decl.loc.start.line, 'Variable Declaration', decl.id.name, '',
+                    decl.init === null ? null : generate(decl.init)));
+            break;
+        case 'ExpressionStatement':
+            parseExpression(statement.expression);
+            break;
+        case 'BreakStatement':
+            pushLine(statement.loc.start.line, 'Break Statement');
+            break;
+        // case 'DoWhileStatement':
+        //    
+        //     break;
+        // case 'EmptyStatement':
+        //     pushLine(statement.loc.start.line, 'Empty Statement');
+        //     break;
+        case 'ForStatement':
+            if (statement.test !== null)
+                pushLine(statement.loc.start.line, 'For Statement', '', generate(statement.test));
+            if (statement.init !== null)
+                statement.init.type === 'VariableDeclaration' ?
+                    parseStatementListItem(statement.init, table) :
+                    parseExpression(statement.init);
+            if (statement.update !== null)
+                parseExpression(statement.update);
+            parseStatementListItem(statement.body, table);
+            break;
+        case 'IfStatement':
+
+            break;
+        case 'ReturnStatement':
+
+            break;
+        case 'WhileStatement':
+
     }
     return table;
 }
