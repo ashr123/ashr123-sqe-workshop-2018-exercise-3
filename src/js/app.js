@@ -1,10 +1,10 @@
 import $ from 'jquery';
-import {parseCode} from './code-analyzer';
+import * as codeAnalyzer from './code-analyzer';
 
-$(document).ready(function () {
+$(document).ready(() => {
     $('#codeSubmissionButton').click(() => {
         let codeToParse = $('#codePlaceholder').val();
-        let parsedCode = parseCode(codeToParse);
+        let parsedCode = codeAnalyzer.parseCode(codeToParse);
         $('#parsedCode').val(JSON.stringify(parsedCode, null, 2));
     });
 });
