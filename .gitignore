@@ -6,3 +6,6 @@ dist-tests
 coverage
 lint
 reports
+
+# ts files
+*.map
