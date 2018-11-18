@@ -1,6 +1,6 @@
-/* eslint-disable */
+/* eslint-disable no-console */
 import * as esprima from 'esprima';
-import {parseStatementListItem} from './parserFuncsExp'
+import {parseStatementListItem} from './parserFuncs';
 
 export const parseCode = codeToParse => {
     let parsedCode = esprima.parseScript(codeToParse, {loc: true});
