@@ -14,23 +14,12 @@ function parseStatementListItem(statement, table) {
             case 'Literal':
                 pushLine(expression.loc.start.line, 'Literal', '', '', expression.raw);
                 break;
-            // case 'FunctionExpression':
-            //
-            //     break;
-            // case 'ConditionalExpression':
-            //
-            //     break;
             case 'AssignmentExpression':
                 pushLine(expression.loc.start.line, 'Assignment Expression', expression.left.type === 'Identifier' ? expression.left.name : null, '', escodegen_1.generate(expression.right));
                 break;
-            // case 'BinaryExpression':
-            //
-            //     break;
-            // case 'MemberExpression':
-            //
-            //     break;
-            // case 'UnaryExpression':
-            //
+            case 'UpdateExpression':
+                pushLine(expression.loc.start.line, 'Update Expression', escodegen_1.generate(expression.argument), '', escodegen_1.generate(expression));
+                break;
         }
     }
     switch (statement.type) {
@@ -51,12 +40,6 @@ function parseStatementListItem(statement, table) {
         case 'BreakStatement':
             pushLine(statement.loc.start.line, 'Break Statement');
             break;
-        // case 'DoWhileStatement':
-        //    
-        //     break;
-        // case 'EmptyStatement':
-        //     pushLine(statement.loc.start.line, 'Empty Statement');
-        //     break;
         case 'ForStatement':
             if (statement.test !== null)
                 pushLine(statement.loc.start.line, 'For Statement', '', escodegen_1.generate(statement.test));
@@ -69,10 +52,17 @@ function parseStatementListItem(statement, table) {
             parseStatementListItem(statement.body, table);
             break;
         case 'IfStatement':
+            pushLine(statement.loc.start.line, 'If Statement', '', escodegen_1.generate(statement.test));
+            parseStatementListItem(statement.consequent, table);
+            if (statement.alternate !== null)
+                parseStatementListItem(statement.alternate, table);
             break;
         case 'ReturnStatement':
+            pushLine(statement.loc.start.line, 'Return Statement', '', '', statement.argument === null ? null : escodegen_1.generate(statement.argument));
             break;
         case 'WhileStatement':
+            pushLine(statement.loc.start.line, 'While Statement', '', escodegen_1.generate(statement.test));
+            parseStatementListItem(statement.body, table);
     }
     return table;
 }

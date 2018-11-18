@@ -26,7 +26,16 @@ type Expression =
     | AssignmentExpression
     | BinaryExpression
     | MemberExpression
-    | UnaryExpression;
+    | UnaryExpression
+    | UpdateExpression;
+
+interface UpdateExpression {
+    type: 'UpdateExpression';
+    operator: '++' | '--';
+    argument: Expression;
+    prefix: boolean;
+    loc: SourceLocation;
+}
 
 interface UnaryExpression {
     type: 'UnaryExpression';
@@ -231,26 +240,16 @@ export function parseStatementListItem(statement: StatementListItem, table: Line
             case 'Literal':
                 pushLine(expression.loc.start.line, 'Literal', '', '', expression.raw);
                 break;
-            // case 'FunctionExpression':
-            //
-            //     break;
-            // case 'ConditionalExpression':
-            //
-            //     break;
             case 'AssignmentExpression':
                 pushLine(expression.loc.start.line, 'Assignment Expression',
                     expression.left.type === 'Identifier' ? expression.left.name : null,
                     '',
                     generate(expression.right));
                 break;
-            // case 'BinaryExpression':
-            //
-            //     break;
-            // case 'MemberExpression':
-            //
-            //     break;
-            // case 'UnaryExpression':
-            //
+            case 'UpdateExpression':
+                pushLine(expression.loc.start.line, 'Update Expression', generate(expression.argument),
+                    '', generate(expression));
+                break;
         }
     }
 
@@ -276,12 +275,6 @@ export function parseStatementListItem(statement: StatementListItem, table: Line
         case 'BreakStatement':
             pushLine(statement.loc.start.line, 'Break Statement');
             break;
-        // case 'DoWhileStatement':
-        //    
-        //     break;
-        // case 'EmptyStatement':
-        //     pushLine(statement.loc.start.line, 'Empty Statement');
-        //     break;
         case 'ForStatement':
             if (statement.test !== null)
                 pushLine(statement.loc.start.line, 'For Statement', '', generate(statement.test));
@@ -294,13 +287,18 @@ export function parseStatementListItem(statement: StatementListItem, table: Line
             parseStatementListItem(statement.body, table);
             break;
         case 'IfStatement':
-
+            pushLine(statement.loc.start.line, 'If Statement', '', generate(statement.test));
+            parseStatementListItem(statement.consequent, table);
+            if (statement.alternate !== null)
+                parseStatementListItem(statement.alternate, table);
             break;
         case 'ReturnStatement':
-
+            pushLine(statement.loc.start.line, 'Return Statement', '', '',
+                statement.argument === null ? null : generate(statement.argument));
             break;
         case 'WhileStatement':
-
+            pushLine(statement.loc.start.line, 'While Statement', '', generate(statement.test))
+            parseStatementListItem(statement.body, table);
     }
     return table;
 }
