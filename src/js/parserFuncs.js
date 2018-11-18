@@ -129,7 +129,7 @@ export function parseStatementListItem(statement, table) {
     case 'BlockStatement':
         parseBlockStatement(statement, table);
         break;
-    case 'export functionDeclaration':
+    case 'FunctionDeclaration':
         functionDeclaration(table, statement);
         break;
     case 'VariableDeclaration':
