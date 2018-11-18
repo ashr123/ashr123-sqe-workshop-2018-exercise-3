@@ -1,77 +1,135 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const escodegen_1 = require("escodegen");
-/*---------------------------------------------------------------------------*/
-function parseStatementListItem(statement, table) {
-    function pushLine(line, type, name = '', condition = '', value = '') {
-        table.push({ line: line, type: type, name: name, condition: condition, value: value });
+function pushLine(table, line, type, name = '', condition = '', value = '') {
+    table.push({ line: line, type: type, name: name, condition: condition, value: value });
+}
+exports.pushLine = pushLine;
+function parseIdentifier(table, expression) {
+    pushLine(table, expression.loc.start.line, 'Identifier', expression.name);
+}
+exports.parseIdentifier = parseIdentifier;
+function parseLiteral(table, expression) {
+    pushLine(table, expression.loc.start.line, 'Literal', '', '', expression.raw);
+}
+exports.parseLiteral = parseLiteral;
+function parseAssignmentExpression(table, expression) {
+    pushLine(table, expression.loc.start.line, 'Assignment Expression', expression.left.type === 'Identifier' ? expression.left.name : null, '', escodegen_1.generate(expression.right));
+}
+exports.parseAssignmentExpression = parseAssignmentExpression;
+function parseUpdateExpression(table, expression) {
+    pushLine(table, expression.loc.start.line, 'Update Expression', escodegen_1.generate(expression.argument), '', escodegen_1.generate(expression));
+}
+exports.parseUpdateExpression = parseUpdateExpression;
+function parseExpression(table, expression) {
+    switch (expression.type) {
+        case 'Identifier':
+            parseIdentifier(table, expression);
+            break;
+        case 'Literal':
+            parseLiteral(table, expression);
+            break;
+        case 'AssignmentExpression':
+            parseAssignmentExpression(table, expression);
+            break;
+        case 'UpdateExpression':
+            parseUpdateExpression(table, expression);
     }
-    function parseExpression(expression) {
-        switch (expression.type) {
-            case 'Identifier':
-                pushLine(expression.loc.start.line, 'Identifier', expression.name);
-                break;
-            case 'Literal':
-                pushLine(expression.loc.start.line, 'Literal', '', '', expression.raw);
-                break;
-            case 'AssignmentExpression':
-                pushLine(expression.loc.start.line, 'Assignment Expression', expression.left.type === 'Identifier' ? expression.left.name : null, '', escodegen_1.generate(expression.right));
-                break;
-            case 'UpdateExpression':
-                pushLine(expression.loc.start.line, 'Update Expression', escodegen_1.generate(expression.argument), '', escodegen_1.generate(expression));
-                break;
-        }
+}
+exports.parseExpression = parseExpression;
+function parseBlockStatement(statement, table) {
+    statement.body.forEach((expressionStatement) => parseStatementListItem(expressionStatement, table));
+}
+exports.parseBlockStatement = parseBlockStatement;
+function parseFunctionDeclaration(table, statement) {
+    pushLine(table, statement.loc.start.line, 'Function Declaration', statement.id.name);
+    statement.params.forEach((param) => pushLine(table, param.loc.start.line, 'Variable Declaration', param.name));
+    parseStatementListItem(statement.body, table);
+}
+exports.parseFunctionDeclaration = parseFunctionDeclaration;
+function parseVariableDeclaration(statement, table) {
+    statement.declarations.forEach((decl) => pushLine(table, decl.loc.start.line, 'Variable Declaration', decl.id.name, '', decl.init === null ? null : escodegen_1.generate(decl.init)));
+}
+exports.parseVariableDeclaration = parseVariableDeclaration;
+function parseBreakStatement(table, statement) {
+    pushLine(table, statement.loc.start.line, 'Break Statement');
+}
+exports.parseBreakStatement = parseBreakStatement;
+function parseForStatement(statement, table) {
+    if (statement.test !== null)
+        pushLine(table, statement.loc.start.line, 'For Statement', '', escodegen_1.generate(statement.test));
+    if (statement.init !== null)
+        statement.init.type === 'VariableDeclaration' ?
+            parseStatementListItem(statement.init, table) :
+            parseExpression(table, statement.init);
+    if (statement.update !== null)
+        parseExpression(table, statement.update);
+    parseStatementListItem(statement.body, table);
+}
+exports.parseForStatement = parseForStatement;
+function parseIfStatement(table, statement) {
+    pushLine(table, statement.loc.start.line, 'If Statement', '', escodegen_1.generate(statement.test));
+    parseStatementListItem(statement.consequent, table);
+    if (statement.alternate !== null) {
+        pushLine(table, statement.alternate.loc.start.line, 'else');
+        parseStatementListItem(statement.alternate, table);
     }
+}
+exports.parseIfStatement = parseIfStatement;
+function parseReturnStatement(table, statement) {
+    pushLine(table, statement.loc.start.line, 'Return Statement', '', '', statement.argument === null ? null : escodegen_1.generate(statement.argument));
+}
+exports.parseReturnStatement = parseReturnStatement;
+function parseWhileStatement(table, statement) {
+    pushLine(table, statement.loc.start.line, 'While Statement', '', escodegen_1.generate(statement.test));
+    parseStatementListItem(statement.body, table);
+}
+exports.parseWhileStatement = parseWhileStatement;
+function parseStatementListItem3(statement, table) {
+    if (statement.type === 'WhileStatement')
+        parseWhileStatement(table, statement);
+}
+exports.parseStatementListItem3 = parseStatementListItem3;
+function parseStatementListItem2(statement, table) {
     switch (statement.type) {
-        case 'BlockStatement':
-            statement.body.forEach((expressionStatement) => parseStatementListItem(expressionStatement, table));
-            break;
-        case 'FunctionDeclaration':
-            pushLine(statement.loc.start.line, 'Function Declaration', statement.id.name);
-            statement.params.forEach((param) => pushLine(param.loc.start.line, 'Variable Declaration', param.name));
-            parseStatementListItem(statement.body, table);
-            break;
-        case 'VariableDeclaration':
-            statement.declarations.forEach((decl) => pushLine(decl.loc.start.line, 'Variable Declaration', decl.id.name, '', decl.init === null ? null : escodegen_1.generate(decl.init)));
-            break;
-        case 'ExpressionStatement':
-            parseExpression(statement.expression);
-            break;
         case 'BreakStatement':
-            pushLine(statement.loc.start.line, 'Break Statement');
+            parseBreakStatement(table, statement);
             break;
         case 'ForStatement':
-            if (statement.test !== null)
-                pushLine(statement.loc.start.line, 'For Statement', '', escodegen_1.generate(statement.test));
-            if (statement.init !== null)
-                statement.init.type === 'VariableDeclaration' ?
-                    parseStatementListItem(statement.init, table) :
-                    parseExpression(statement.init);
-            if (statement.update !== null)
-                parseExpression(statement.update);
-            parseStatementListItem(statement.body, table);
+            parseForStatement(statement, table);
             break;
         case 'IfStatement':
-            pushLine(statement.loc.start.line, 'If Statement', '', escodegen_1.generate(statement.test));
-            parseStatementListItem(statement.consequent, table);
-            if (statement.alternate !== null)
-                parseStatementListItem(statement.alternate, table);
+            parseIfStatement(table, statement);
             break;
         case 'ReturnStatement':
-            pushLine(statement.loc.start.line, 'Return Statement', '', '', statement.argument === null ? null : escodegen_1.generate(statement.argument));
+            parseReturnStatement(table, statement);
             break;
-        case 'WhileStatement':
-            pushLine(statement.loc.start.line, 'While Statement', '', escodegen_1.generate(statement.test));
-            parseStatementListItem(statement.body, table);
+        default:
+            parseStatementListItem3(statement, table);
+    }
+}
+exports.parseStatementListItem2 = parseStatementListItem2;
+function parseStatementListItem(statement, table) {
+    switch (statement.type) {
+        case 'BlockStatement':
+            parseBlockStatement(statement, table);
+            break;
+        case 'FunctionDeclaration':
+            parseFunctionDeclaration(table, statement);
+            break;
+        case 'VariableDeclaration':
+            parseVariableDeclaration(statement, table);
+            break;
+        case 'ExpressionStatement':
+            parseExpression(table, statement.expression);
+            break;
+        default:
+            parseStatementListItem2(statement, table);
     }
     return table;
 }
 exports.parseStatementListItem = parseStatementListItem;
-/*---------------------------------------------------------------------------*/
-function aaa(a, b, c) {
-    let qq = 5;
-}
-let json1 = {
+/*let json1: Program = {
     'type': 'Program',
     'body': [
         {
@@ -1001,5 +1059,5 @@ let json1 = {
             'column': 1
         }
     }
-};
+};*/ 
 //# sourceMappingURL=parserFuncs.js.map
