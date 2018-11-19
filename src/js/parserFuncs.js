@@ -43,19 +43,19 @@ export function parseExpression(table, expression) {
 }
 
 export function parseBlockStatement(statement, table) {
-    statement.body.forEach((expressionStatement) => parseStatementListItem(expressionStatement, table));
+    statement.body.forEach(expressionStatement => parseStatementListItem(expressionStatement, table));
     return table;
 }
 
 export function functionDeclaration(table, statement) {
-    pushLine(table, statement.loc.start.line, 'export function Declaration', statement.id.name);
-    statement.params.forEach((param) => pushLine(table, param.loc.start.line, 'Variable Declaration', param.name));
+    pushLine(table, statement.loc.start.line, 'Function Declaration', statement.id.name);
+    statement.params.forEach(param => pushLine(table, param.loc.start.line, 'Variable Declaration', param.name));
     parseStatementListItem(statement.body, table);
     return table;
 }
 
 export function parseVariableDeclaration(statement, table) {
-    statement.declarations.forEach((decl) => pushLine(table, decl.loc.start.line, 'Variable Declaration', decl.id.name, '', decl.init === null ? null : generate(decl.init)));
+    statement.declarations.forEach(decl => pushLine(table, decl.loc.start.line, 'Variable Declaration', decl.id.name, '', decl.init === null ? null : generate(decl.init)));
     return table;
 }
 
