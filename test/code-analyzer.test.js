@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import assert from 'assert';
 import * as codeAnalyzer from '../src/js/code-analyzer';
 
@@ -93,6 +94,113 @@ describe('The javascript parser', () => {
         });
     });
 
+    it('testing deepEqual \'b;\'', () => {
+        assert.deepEqual(codeAnalyzer.parseCode('b;').code, {
+            'type': 'Program',
+            'body': [
+                {
+                    'type': 'ExpressionStatement',
+                    'expression': {
+                        'type': 'Identifier',
+                        'name': 'b',
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 0
+                            },
+                            'end': {
+                                'line': 1,
+                                'column': 1
+                            }
+                        }
+                    },
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 0
+                        },
+                        'end': {
+                            'line': 1,
+                            'column': 2
+                        }
+                    }
+                }
+            ],
+            'sourceType': 'script',
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 0
+                },
+                'end': {
+                    'line': 1,
+                    'column': 2
+                }
+            }
+        });
+    });
+
+    it('testing deepEqual \'a++;\'', () => {
+        assert.deepEqual(codeAnalyzer.parseCode('a++;').code, {
+            'type': 'Program',
+            'body': [
+                {
+                    'type': 'ExpressionStatement',
+                    'expression': {
+                        'type': 'UpdateExpression',
+                        'operator': '++',
+                        'argument': {
+                            'type': 'Identifier',
+                            'name': 'a',
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 0
+                                },
+                                'end': {
+                                    'line': 1,
+                                    'column': 1
+                                }
+                            }
+                        },
+                        'prefix': false,
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 0
+                            },
+                            'end': {
+                                'line': 1,
+                                'column': 3
+                            }
+                        }
+                    },
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 0
+                        },
+                        'end': {
+                            'line': 1,
+                            'column': 4
+                        }
+                    }
+                }
+            ],
+            'sourceType': 'script',
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 0
+                },
+                'end': {
+                    'line': 1,
+                    'column': 4
+                }
+            }
+        });
+    });
+
     it('testing deepEqual \'\'', () => {
         assert.deepEqual(codeAnalyzer.parseCode('').code, {
             'type': 'Program',
@@ -106,6 +214,277 @@ describe('The javascript parser', () => {
                 'end': {
                     'line': 0,
                     'column': 0
+                }
+            }
+        });
+    });
+
+    it('testing deepEqual \'b;\'', () => {
+        assert.deepEqual(codeAnalyzer.parseCode('b;').code, {
+            'type': 'Program',
+            'body': [
+                {
+                    'type': 'ExpressionStatement',
+                    'expression': {
+                        'type': 'Identifier',
+                        'name': 'b',
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 0
+                            },
+                            'end': {
+                                'line': 1,
+                                'column': 1
+                            }
+                        }
+                    },
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 0
+                        },
+                        'end': {
+                            'line': 1,
+                            'column': 2
+                        }
+                    }
+                }
+            ],
+            'sourceType': 'script',
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 0
+                },
+                'end': {
+                    'line': 1,
+                    'column': 2
+                }
+            }
+        });
+    });
+
+    it('testing deepEqual \'3;\'', () => {
+        assert.deepEqual(codeAnalyzer.parseCode('3;').code, {
+            'type': 'Program',
+            'body': [
+                {
+                    'type': 'ExpressionStatement',
+                    'expression': {
+                        'type': 'Literal',
+                        'value': 3,
+                        'raw': '3',
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 0
+                            },
+                            'end': {
+                                'line': 1,
+                                'column': 1
+                            }
+                        }
+                    },
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 0
+                        },
+                        'end': {
+                            'line': 1,
+                            'column': 2
+                        }
+                    }
+                }
+            ],
+            'sourceType': 'script',
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 0
+                },
+                'end': {
+                    'line': 1,
+                    'column': 2
+                }
+            }
+        });
+    });
+
+    it('testing deepEqual \'for(let a=1; a>3; a++)\n' +
+        '    break;\'', () => {
+        assert.deepEqual(codeAnalyzer.parseCode('for(let a=1; a>3; a++)\n' +
+            '    break;').code, {
+            'type': 'Program',
+            'body': [
+                {
+                    'type': 'ForStatement',
+                    'init': {
+                        'type': 'VariableDeclaration',
+                        'declarations': [
+                            {
+                                'type': 'VariableDeclarator',
+                                'id': {
+                                    'type': 'Identifier',
+                                    'name': 'a',
+                                    'loc': {
+                                        'start': {
+                                            'line': 1,
+                                            'column': 8
+                                        },
+                                        'end': {
+                                            'line': 1,
+                                            'column': 9
+                                        }
+                                    }
+                                },
+                                'init': {
+                                    'type': 'Literal',
+                                    'value': 1,
+                                    'raw': '1',
+                                    'loc': {
+                                        'start': {
+                                            'line': 1,
+                                            'column': 10
+                                        },
+                                        'end': {
+                                            'line': 1,
+                                            'column': 11
+                                        }
+                                    }
+                                },
+                                'loc': {
+                                    'start': {
+                                        'line': 1,
+                                        'column': 8
+                                    },
+                                    'end': {
+                                        'line': 1,
+                                        'column': 11
+                                    }
+                                }
+                            }
+                        ],
+                        'kind': 'let',
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 4
+                            },
+                            'end': {
+                                'line': 1,
+                                'column': 12
+                            }
+                        }
+                    },
+                    'test': {
+                        'type': 'BinaryExpression',
+                        'operator': '>',
+                        'left': {
+                            'type': 'Identifier',
+                            'name': 'a',
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 13
+                                },
+                                'end': {
+                                    'line': 1,
+                                    'column': 14
+                                }
+                            }
+                        },
+                        'right': {
+                            'type': 'Literal',
+                            'value': 3,
+                            'raw': '3',
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 15
+                                },
+                                'end': {
+                                    'line': 1,
+                                    'column': 16
+                                }
+                            }
+                        },
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 13
+                            },
+                            'end': {
+                                'line': 1,
+                                'column': 16
+                            }
+                        }
+                    },
+                    'update': {
+                        'type': 'UpdateExpression',
+                        'operator': '++',
+                        'argument': {
+                            'type': 'Identifier',
+                            'name': 'a',
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 18
+                                },
+                                'end': {
+                                    'line': 1,
+                                    'column': 19
+                                }
+                            }
+                        },
+                        'prefix': false,
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 18
+                            },
+                            'end': {
+                                'line': 1,
+                                'column': 21
+                            }
+                        }
+                    },
+                    'body': {
+                        'type': 'BreakStatement',
+                        'label': null,
+                        'loc': {
+                            'start': {
+                                'line': 2,
+                                'column': 4
+                            },
+                            'end': {
+                                'line': 2,
+                                'column': 10
+                            }
+                        }
+                    },
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 0
+                        },
+                        'end': {
+                            'line': 2,
+                            'column': 10
+                        }
+                    }
+                }
+            ],
+            'sourceType': 'script',
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 0
+                },
+                'end': {
+                    'line': 2,
+                    'column': 10
                 }
             }
         });
