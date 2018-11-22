@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import * as esprima from 'esprima';
 import {parseStatementListItem} from './parserFuncs';
+import $ from 'jquery';
 
 // eslint-disable-next-line max-lines-per-function
 export function createTable(tableData) {
@@ -25,7 +26,9 @@ export function createTable(tableData) {
         tableBody.appendChild(row);
     });
     table.appendChild(tableBody);
-    document.body.appendChild(table);
+    // document.body.appendChild(table);
+    $('#myTable').empty();
+    $('#myTable').append(table);
 }
 
 export const parseCode = codeToParse => {
