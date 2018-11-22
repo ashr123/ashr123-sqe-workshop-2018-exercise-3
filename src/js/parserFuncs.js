@@ -1,31 +1,26 @@
 import {generate} from 'escodegen';
 
-export function pushLine(table, line, type, name = '', condition = '', value = '') {
+function pushLine(table, line, type, name = '', condition = '', value = '') {
     table.push({line: line, type: type, name: name, condition: condition, value: value});
-    return table;
 }
 
-export function parseIdentifier(table, expression) {
+function parseIdentifier(table, expression) {
     pushLine(table, expression.loc.start.line, 'Identifier', expression.name);
-    return table;
 }
 
-export function parseLiteral(table, expression) {
+function parseLiteral(table, expression) {
     pushLine(table, expression.loc.start.line, 'Literal', '', '', expression.raw);
-    return table;
 }
 
-export function parseAssignmentExpression(table, expression) {
-    pushLine(table, expression.loc.start.line, 'Assignment Expression', expression.left.type === 'Identifier' ? expression.left.name : null, '', generate(expression.right));
-    return table;
+function parseAssignmentExpression(table, expression) {
+    pushLine(table, expression.loc.start.line, 'Assignment Expression', expression.left.name, '', generate(expression.right));
 }
 
-export function parseUpdateExpression(table, expression) {
+function parseUpdateExpression(table, expression) {
     pushLine(table, expression.loc.start.line, 'Update Expression', generate(expression.argument), '', generate(expression));
-    return table;
 }
 
-export function parseExpression(table, expression) {
+function parseExpression(table, expression) {
     switch (expression.type) {
     case 'Identifier':
         parseIdentifier(table, expression);
@@ -39,32 +34,27 @@ export function parseExpression(table, expression) {
     case 'UpdateExpression':
         parseUpdateExpression(table, expression);
     }
-    return table;
 }
 
-export function parseBlockStatement(statement, table) {
+function parseBlockStatement(statement, table) {
     statement.body.forEach(expressionStatement => parseStatementListItem(expressionStatement, table));
-    return table;
 }
 
-export function functionDeclaration(table, statement) {
+function functionDeclaration(table, statement) {
     pushLine(table, statement.loc.start.line, 'Function Declaration', statement.id.name);
     statement.params.forEach(param => pushLine(table, param.loc.start.line, 'Variable Declaration', param.name));
     parseStatementListItem(statement.body, table);
-    return table;
 }
 
-export function parseVariableDeclaration(statement, table) {
+function parseVariableDeclaration(statement, table) {
     statement.declarations.forEach(decl => pushLine(table, decl.loc.start.line, 'Variable Declaration', decl.id.name, '', decl.init === null ? null : generate(decl.init)));
-    return table;
 }
 
-export function parseBreakStatement(table, statement) {
+function parseBreakStatement(table, statement) {
     pushLine(table, statement.loc.start.line, 'Break Statement');
-    return table;
 }
 
-export function parseForStatement(statement, table) {
+function parseForStatement(statement, table) {
     if (statement.test !== null)
         pushLine(table, statement.loc.start.line, 'For Statement', '', generate(statement.test));
     if (statement.init !== null)
@@ -74,37 +64,32 @@ export function parseForStatement(statement, table) {
     if (statement.update !== null)
         parseExpression(table, statement.update);
     parseStatementListItem(statement.body, table);
-    return table;
 }
 
-export function parseIfStatement(table, statement) {
+function parseIfStatement(table, statement) {
     pushLine(table, statement.loc.start.line, 'If Statement', '', generate(statement.test));
     parseStatementListItem(statement.consequent, table);
     if (statement.alternate !== null) {
         pushLine(table, statement.alternate.loc.start.line, 'else');
         parseStatementListItem(statement.alternate, table);
     }
-    return table;
 }
 
-export function parseReturnStatement(table, statement) {
+function parseReturnStatement(table, statement) {
     pushLine(table, statement.loc.start.line, 'Return Statement', '', '', statement.argument === null ? null : generate(statement.argument));
-    return table;
 }
 
-export function parseWhileStatement(table, statement) {
+function parseWhileStatement(table, statement) {
     pushLine(table, statement.loc.start.line, 'While Statement', '', generate(statement.test));
     parseStatementListItem(statement.body, table);
-    return table;
 }
 
-export function parseStatementListItem3(statement, table) {
+function parseStatementListItem3(statement, table) {
     if (statement.type === 'WhileStatement')
         parseWhileStatement(table, statement);
-    return table;
 }
 
-export function parseStatementListItem2(statement, table) {
+function parseStatementListItem2(statement, table) {
     switch (statement.type) {
     case 'BreakStatement':
         parseBreakStatement(table, statement);
@@ -121,7 +106,6 @@ export function parseStatementListItem2(statement, table) {
     default:
         parseStatementListItem3(statement, table);
     }
-    return table;
 }
 
 export function parseStatementListItem(statement, table) {

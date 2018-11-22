@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import * as codeAnalyzer from './code-analyzer';
 
-export function createTable(tableData) {
+function createTable(tableData) {
     let table = document.createElement('table');
     table.border = 1;
     let tableBody = document.createElement('tbody');

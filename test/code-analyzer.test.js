@@ -219,6 +219,274 @@ describe('The javascript parser', () => {
         });
     });
 
+    it('testing deepEqual \'try{}\n' +
+        'catch(e){}\'', () => {
+        assert.deepEqual(codeAnalyzer.parseCode('try{}\n' +
+            'catch(e){}').code, {
+            'type': 'Program',
+            'body': [
+                {
+                    'type': 'TryStatement',
+                    'block': {
+                        'type': 'BlockStatement',
+                        'body': [],
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 3
+                            },
+                            'end': {
+                                'line': 1,
+                                'column': 5
+                            }
+                        }
+                    },
+                    'handler': {
+                        'type': 'CatchClause',
+                        'param': {
+                            'type': 'Identifier',
+                            'name': 'e',
+                            'loc': {
+                                'start': {
+                                    'line': 2,
+                                    'column': 6
+                                },
+                                'end': {
+                                    'line': 2,
+                                    'column': 7
+                                }
+                            }
+                        },
+                        'body': {
+                            'type': 'BlockStatement',
+                            'body': [],
+                            'loc': {
+                                'start': {
+                                    'line': 2,
+                                    'column': 8
+                                },
+                                'end': {
+                                    'line': 2,
+                                    'column': 10
+                                }
+                            }
+                        },
+                        'loc': {
+                            'start': {
+                                'line': 2,
+                                'column': 0
+                            },
+                            'end': {
+                                'line': 2,
+                                'column': 10
+                            }
+                        }
+                    },
+                    'finalizer': null,
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 0
+                        },
+                        'end': {
+                            'line': 2,
+                            'column': 10
+                        }
+                    }
+                }
+            ],
+            'sourceType': 'script',
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 0
+                },
+                'end': {
+                    'line': 2,
+                    'column': 10
+                }
+            }
+        });
+    });
+
+    it('testing deepEqual \'() => {};\'', () => {
+        assert.deepEqual(codeAnalyzer.parseCode('() => {};').code, {
+            'type': 'Program',
+            'body': [
+                {
+                    'type': 'ExpressionStatement',
+                    'expression': {
+                        'type': 'ArrowFunctionExpression',
+                        'id': null,
+                        'params': [],
+                        'body': {
+                            'type': 'BlockStatement',
+                            'body': [],
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 6
+                                },
+                                'end': {
+                                    'line': 1,
+                                    'column': 8
+                                }
+                            }
+                        },
+                        'generator': false,
+                        'expression': false,
+                        'async': false,
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 0
+                            },
+                            'end': {
+                                'line': 1,
+                                'column': 8
+                            }
+                        }
+                    },
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 0
+                        },
+                        'end': {
+                            'line': 1,
+                            'column': 9
+                        }
+                    }
+                }
+            ],
+            'sourceType': 'script',
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 0
+                },
+                'end': {
+                    'line': 1,
+                    'column': 9
+                }
+            }
+        });
+    });
+
+    it('testing deepEqual \'function a(){\n' +
+        '    if(true)\n' +
+        '        return;\n' +
+        '}\'', () => {
+        assert.deepEqual(codeAnalyzer.parseCode('function a(){\n' +
+            '    if(true)\n' +
+            '        return;\n' +
+            '}').code, {
+            'type': 'Program',
+            'body': [
+                {
+                    'type': 'FunctionDeclaration',
+                    'id': {
+                        'type': 'Identifier',
+                        'name': 'a',
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 9
+                            },
+                            'end': {
+                                'line': 1,
+                                'column': 10
+                            }
+                        }
+                    },
+                    'params': [],
+                    'body': {
+                        'type': 'BlockStatement',
+                        'body': [
+                            {
+                                'type': 'IfStatement',
+                                'test': {
+                                    'type': 'Literal',
+                                    'value': true,
+                                    'raw': 'true',
+                                    'loc': {
+                                        'start': {
+                                            'line': 2,
+                                            'column': 7
+                                        },
+                                        'end': {
+                                            'line': 2,
+                                            'column': 11
+                                        }
+                                    }
+                                },
+                                'consequent': {
+                                    'type': 'ReturnStatement',
+                                    'argument': null,
+                                    'loc': {
+                                        'start': {
+                                            'line': 3,
+                                            'column': 8
+                                        },
+                                        'end': {
+                                            'line': 3,
+                                            'column': 15
+                                        }
+                                    }
+                                },
+                                'alternate': null,
+                                'loc': {
+                                    'start': {
+                                        'line': 2,
+                                        'column': 4
+                                    },
+                                    'end': {
+                                        'line': 3,
+                                        'column': 15
+                                    }
+                                }
+                            }
+                        ],
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 12
+                            },
+                            'end': {
+                                'line': 4,
+                                'column': 1
+                            }
+                        }
+                    },
+                    'generator': false,
+                    'expression': false,
+                    'async': false,
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 0
+                        },
+                        'end': {
+                            'line': 4,
+                            'column': 1
+                        }
+                    }
+                }
+            ],
+            'sourceType': 'script',
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 0
+                },
+                'end': {
+                    'line': 4,
+                    'column': 1
+                }
+            }
+        });
+    });
+
     it('testing deepEqual \'b;\'', () => {
         assert.deepEqual(codeAnalyzer.parseCode('b;').code, {
             'type': 'Program',
@@ -450,6 +718,121 @@ describe('The javascript parser', () => {
                             }
                         }
                     },
+                    'body': {
+                        'type': 'BreakStatement',
+                        'label': null,
+                        'loc': {
+                            'start': {
+                                'line': 2,
+                                'column': 4
+                            },
+                            'end': {
+                                'line': 2,
+                                'column': 10
+                            }
+                        }
+                    },
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 0
+                        },
+                        'end': {
+                            'line': 2,
+                            'column': 10
+                        }
+                    }
+                }
+            ],
+            'sourceType': 'script',
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 0
+                },
+                'end': {
+                    'line': 2,
+                    'column': 10
+                }
+            }
+        });
+    });
+
+    it('testing deepEqual \'for(; ; )\n' +
+        '    break;\'', () => {
+        assert.deepEqual(codeAnalyzer.parseCode('for(; ; )\n' +
+            '    break;').code, {
+            'type': 'Program',
+            'body': [
+                {
+                    'type': 'ForStatement',
+                    'init': null,
+                    'test': null,
+                    'update': null,
+                    'body': {
+                        'type': 'BreakStatement',
+                        'label': null,
+                        'loc': {
+                            'start': {
+                                'line': 2,
+                                'column': 4
+                            },
+                            'end': {
+                                'line': 2,
+                                'column': 10
+                            }
+                        }
+                    },
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 0
+                        },
+                        'end': {
+                            'line': 2,
+                            'column': 10
+                        }
+                    }
+                }
+            ],
+            'sourceType': 'script',
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 0
+                },
+                'end': {
+                    'line': 2,
+                    'column': 10
+                }
+            }
+        });
+    });
+
+    it('testing deepEqual \'for(a; ; )\n' +
+        '    break;\'', () => {
+        assert.deepEqual(codeAnalyzer.parseCode('for(a; ; )\n' +
+            '    break;').code, {
+            'type': 'Program',
+            'body': [
+                {
+                    'type': 'ForStatement',
+                    'init': {
+                        'type': 'Identifier',
+                        'name': 'a',
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 4
+                            },
+                            'end': {
+                                'line': 1,
+                                'column': 5
+                            }
+                        }
+                    },
+                    'test': null,
+                    'update': null,
                     'body': {
                         'type': 'BreakStatement',
                         'label': null,
