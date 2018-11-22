@@ -33,12 +33,5 @@ export const parseCode = codeToParse => {
     let elementTable = [];
     parsedCode.body.forEach(statement => parseStatementListItem(statement, elementTable));
     console.log(elementTable);
-    try {
-        createTable(elementTable);
-    }
-    // eslint-disable-next-line no-empty
-    catch (e) {
-
-    }
-    return parsedCode;
+    return {code: parsedCode, table: elementTable};
 };
