@@ -2,11 +2,8 @@ import $ from 'jquery';
 import * as codeAnalyzer from './code-analyzer';
 
 function createTable(tableData) {
-    let table = document.createElement('table');
+    let table = document.createElement('table'), tableBody = document.createElement('tbody'), row = document.createElement('tr'), titles = ['Line', 'Type', 'Name', 'Condition', 'Value'];
     table.border = 1;
-    let tableBody = document.createElement('tbody');
-    let row = document.createElement('tr');
-    let titles = ['Line', 'Type', 'Name', 'Condition', 'Value'];
     titles.forEach(element => {
         let header = document.createElement('th');
         header.appendChild(document.createTextNode(element));
@@ -22,9 +19,7 @@ function createTable(tableData) {
         });
         tableBody.appendChild(row);
     });
-    table.appendChild(tableBody);
-    $('#myTable').empty();
-    $('#myTable').append(table);
+    table.appendChild(tableBody); $('#myTable').empty(); $('#myTable').append(table);
 }
 
 $(document).ready(() => {
