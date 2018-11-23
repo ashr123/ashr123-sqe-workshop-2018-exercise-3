@@ -26,7 +26,7 @@
 The input:
 
 ```javascript
-function binarySearch(X, V, n){
+function binarySearch(X, V, n) {
     let low, high, mid;
     low = 0;
     high = n - 1;

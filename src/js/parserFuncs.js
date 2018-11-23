@@ -70,7 +70,8 @@ function parseIfStatement(table, statement) {
     pushLine(table, statement.loc.start.line, 'If Statement', '', generate(statement.test));
     parseStatementListItem(statement.consequent, table);
     if (statement.alternate !== null) {
-        pushLine(table, statement.alternate.loc.start.line, 'else');
+        if (statement.alternate.type === 'IfStatement')
+            pushLine(table, statement.alternate.loc.start.line, 'else');
         parseStatementListItem(statement.alternate, table);
     }
 }
