@@ -31,7 +31,7 @@ function binarySearch(X, V, n) {
     low = 0;
     high = n - 1;
     while (low <= high) {
-        mid = (low + high)/2;
+        mid = (low + high) / 2;
         if (X < V[mid])
             high = mid - 1;
         else if (X > V[mid])
