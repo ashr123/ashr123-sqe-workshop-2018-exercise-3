@@ -126,5 +126,4 @@ export function parseStatementListItem(statement, table) {
     default:
         parseStatementListItem2(statement, table);
     }
-    return table;
 }
