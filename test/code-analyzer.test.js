@@ -2,11 +2,11 @@
 import assert from 'assert';
 import * as codeAnalyzer from '../src/js/code-analyzer';
 
-function pushLine(line, type, name = '', condition = '', value = '') {
-    return{line: line, type: type, name: name, condition: condition, value: value};
-}
-
 describe('The javascript parser', () => {
+    function pushLine(line, type, name = '', condition = '', value = '') {
+        return {line: line, type: type, name: name, condition: condition, value: value};
+    }
+
     it('is parsing an empty function correctly', () => {
         assert.equal(
             JSON.stringify(codeAnalyzer.parseCode('').code),
