@@ -13,7 +13,7 @@ function parseLiteral(table, expression) {
 }
 
 function parseAssignmentExpression(table, expression) {
-    pushLine(table, expression.loc.start.line, 'Assignment Expression', expression.left.name, '', generate(expression.right));
+    pushLine(table, expression.loc.start.line, 'Assignment Expression', generate(expression.left), '', generate(expression.right));
 }
 
 function parseUpdateExpression(table, expression) {
