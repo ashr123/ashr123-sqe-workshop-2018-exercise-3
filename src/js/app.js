@@ -8,9 +8,9 @@ function createTable(tableData) {
     for (const element of ['Line', 'Type', 'Name', 'Condition', 'Value']) {
         const header = document.createElement('th');
         header.appendChild(document.createTextNode(element));
-        row.append(header);
+        row.appendChild(header);
     }
-    tableBody.append(row);
+    tableBody.appendChild(row);
     for (const rowData of tableData) {
         row = document.createElement('tr');
         for (const cell of Object.values(rowData)) {
