@@ -1,5 +1,5 @@
 import * as esprima from 'esprima';
-import {parseStatementListItem} from './parserFuncs';
+import {parseStatementListItem} from './parserFuncsExp';
 
 export const parseCode = codeToParse => {
     const parsedCode = esprima.parseScript(codeToParse, {loc: true}),
