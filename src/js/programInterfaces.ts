@@ -88,7 +88,8 @@ export interface ConditionalExpression {
 
 export interface AssignmentExpression {
     type: 'AssignmentExpression';
-    operator: '=' | '*=' | '**=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|=';
+    operator: '=' /*| '*=' | '**=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='*/
+    ;
     left: Expression;
     right: Expression;
     loc: SourceLocation;
