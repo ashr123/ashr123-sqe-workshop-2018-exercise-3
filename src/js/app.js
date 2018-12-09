@@ -1,9 +1,12 @@
 import $ from 'jquery';
 import * as codeAnalyzer from './code-analyzer';
-import {substitute} from './simbolicSubsExp';
+import {generate} from 'escodegen';
+import * as simbolicSubs from './simbolicSubsExp';
 
+// eslint-disable-next-line max-lines-per-function
 function createTable(tableData) {
-    const table = document.createElement('table'), tableBody = document.createElement('tbody'); let row = document.createElement('tr');
+    const table = document.createElement('table'), tableBody = document.createElement('tbody');
+    let row = document.createElement('tr');
     table.border = 1;
     for (const element of ['Line', 'Type', 'Name', 'Condition', 'Value']) {
         const header = document.createElement('th');
@@ -20,15 +23,16 @@ function createTable(tableData) {
         }
         tableBody.appendChild(row);
     }
-    table.appendChild(tableBody); $('#myTable').empty(); $('#myTable').append(table);
+    table.appendChild(tableBody);
+    $('#myTable').empty();
+    $('#myTable').append(table);
 }
 
 $(document).ready(() => {
     $('#codeSubmissionButton').click(() => {
         const codeToParse = $('#codePlaceholder').val(),
             parsedCode = codeAnalyzer.parseCode(codeToParse);
-        substitute(parsedCode.table);
         createTable(parsedCode.table);
-        $('#parsedCode').val(JSON.stringify(parsedCode.code, null, 2));
+        $('#parsedCode').val(generate(parsedCode.code) + '\n\n' + JSON.stringify(parsedCode.code, null, 2));
     });
 });

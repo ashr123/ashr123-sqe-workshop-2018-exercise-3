@@ -58,17 +58,20 @@ function parseExpression(table: Line[], expression: Expression) {
 }
 
 function parseBlockStatement(statement: BlockStatement, table: Line[]) {
-    statement.body.forEach(expressionStatement => parseStatementListItem(expressionStatement, table));
+    for (const expressionStatement of statement.body)
+        parseStatementListItem(expressionStatement, table);
 }
 
 function functionDeclaration(table: Line[], statement: FunctionDeclaration) {
     pushLine(table, statement.loc.start.line, 'Function Declaration', statement.id.name);
-    statement.params.forEach(param => pushLine(table, param.loc.start.line, 'Variable Declaration', param.name));
+    for (const param of statement.params)
+        pushLine(table, param.loc.start.line, 'Variable Declaration', param.name);
     parseStatementListItem(statement.body, table);
 }
 
 function parseVariableDeclaration(statement: VariableDeclaration, table: Line[]) {
-    statement.declarations.forEach(decl => pushLine(table, decl.loc.start.line, 'Variable Declaration', decl.id.name, '', decl.init === null ? null : generate(decl.init)));
+    for (const decl of statement.declarations)
+        pushLine(table, decl.loc.start.line, 'Variable Declaration', decl.id.name, '', decl.init === null ? null : generate(decl.init));
 }
 
 function parseBreakStatement(table: Line[], statement: BreakStatement) {

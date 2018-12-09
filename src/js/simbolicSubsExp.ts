@@ -1,23 +1,21 @@
 import * as JQuery from 'jquery';
 import {generate} from 'escodegen';
+const Parser = require('expr-eval').Parser;
+const parser = new Parser();
 import {
-    AssignmentExpression, BinaryExpression,
+    AssignmentExpression,
+    BinaryExpression,
     BlockStatement,
     Expression,
     FunctionDeclaration,
     Identifier,
     IfStatement,
-    Literal,
     MemberExpression,
     ReturnStatement,
     Statement,
     VariableDeclaration,
     WhileStatement
 } from './programInterfaces';
-
-function parseBinaryExpression(table: Map<string, Expression>, right: BinaryExpression): Expression {
-    return undefined;
-}
 
 function simbolicSubstitute(table: Map<string, Expression>, right: Expression): Expression {
     switch (right.type) {
@@ -30,6 +28,12 @@ function simbolicSubstitute(table: Map<string, Expression>, right: Expression): 
     }
 }
 
+function parseBinaryExpression(table: Map<string, Expression>, expression: BinaryExpression): Expression {
+    expression.left = simbolicSubstitute(table, JQuery.extend(true, {},expression.left));
+    expression.right = simbolicSubstitute(table, JQuery.extend(true, {}, expression.right));
+    return expression;
+}
+
 // function pushLine(table: Map<string, Expression>, line: number,
 //                   type: string,
 //                   name: string = '',
@@ -38,13 +42,14 @@ function simbolicSubstitute(table: Map<string, Expression>, right: Expression): 
 //     table.push({line: line, type: type, name: name, condition: condition, value: value});
 // }
 
-function parseMemberExpression(table: Map<string, Expression>, member: MemberExpression): Expression {
-
+function parseMemberExpression(table: Map<string, Expression>, member: MemberExpression)/*: Expression*/ {
+    return undefined;
 }
 
 function parseIdentifier(table: Map<string, Expression>, expression: Identifier): Expression {
     // pushLine(table, expression.loc.start.line, 'Identifier', expression.name);
-    return table[expression.name] !== undefined ? table[expression.name] : expression;
+    let temp = table[expression.name] !== undefined ? table[expression.name] : expression;
+    return simbolicSubstitute(table, JQuery.extend(true, {}, temp));
 }
 
 // function parseLiteral(table: Map<string, Expression>, expression: Literal): Expression {
@@ -52,39 +57,21 @@ function parseIdentifier(table: Map<string, Expression>, expression: Identifier)
 //
 // }
 
-function parseAssignmentExpression(table: Map<string, Expression>, expression: AssignmentExpression) {
+function parseAssignmentExpression(table: Map<string, Expression>, expression: AssignmentExpression) { //TODO Taking care of the right side
     // pushLine(table, expression.loc.start.line, 'Assignment Expression', generate(expression.left), '', generate(expression.right));
-    if (expression.left.type === "Identifier")
-        table[expression.left.name] = simbolicSubstitute(table, expression.right)
+    if (expression.left.type === "Identifier") {
+        table[expression.left.name] = simbolicSubstitute(table, JQuery.extend(true, {},expression.right)); // update table for later use
+        // expression.right = table[expression.left.name];
+    }
 }
 
 // function parseUpdateExpression(table: Map<string, Expression>, expression: UpdateExpression) {
 //     pushLine(table, expression.loc.start.line, 'Update Expression', generate(expression.argument), '', generate(expression));
 // }
 
-function parseExpression(table: Map<string, Expression>, expression: Expression) { //TODO MemberExpression
-    switch (expression.type) {
-        case 'Identifier':
-            parseIdentifier(table, expression);
-            break;
-        case 'Literal':
-            parseLiteral(table, expression);
-            break;
-        case 'AssignmentExpression':
-            parseAssignmentExpression(table, expression);
-            break;
-        case 'MemberExpression':
-            return parseMemberExpression(table, expression);
-        case 'BinaryExpression':
-            return parseBinaryExpression(table, right);
-        // case 'UpdateExpression':
-        //     parseUpdateExpression(table, expression);
-    }
-}
-
 function parseBlockStatement(statement: BlockStatement, table: Map<string, Expression>) { //TODO make a copy from table
     for (const expressionStatement of statement.body)
-        parseStatementListItem(expressionStatement, JQuery.extend(true, {}, table))
+        substituteStatementListItem(expressionStatement, JQuery.extend(true, {}, table))
 }
 
 function functionDeclaration(table: Map<string, Expression>, statement: FunctionDeclaration) {
@@ -93,7 +80,7 @@ function functionDeclaration(table: Map<string, Expression>, statement: Function
     // for (const param of statement.params)
     //     pushLine(table, param.loc.start.line, 'Variable Declaration', param.name); //TODO chenge when evaluating
 
-    parseStatementListItem(statement.body, table);
+    substituteStatementListItem(statement.body, table);
 }
 
 function parseVariableDeclaration(statement: VariableDeclaration, table: Map<string, Expression>) {
@@ -110,20 +97,20 @@ function parseVariableDeclaration(statement: VariableDeclaration, table: Map<str
 //         pushLine(table, statement.loc.start.line, 'For Statement', '', generate(statement.test));
 //     if (statement.init !== null)
 //         statement.init.type === 'VariableDeclaration' ?
-//             parseStatementListItem(statement.init, table) :
+//             substituteStatementListItem(statement.init, table) :
 //             parseExpression(table, statement.init);
 //     if (statement.update !== null)
 //         parseExpression(table, statement.update);
-//     parseStatementListItem(statement.body, table);
+//     substituteStatementListItem(statement.body, table);
 // }
 
 function parseIfStatement(table: Map<string, Expression>, statement: IfStatement) { //TODO change for evaluation
     // pushLine(table, statement.loc.start.line, 'If Statement', '', generate(statement.test));
-    // parseStatementListItem(statement.consequent, table);
+    // substituteStatementListItem(statement.consequent, table);
     // if (statement.alternate !== null) {
     //     if (statement.alternate.type === 'IfStatement')
     //         pushLine(table, statement.alternate.loc.start.line, 'else');
-    //     parseStatementListItem(statement.alternate, table);
+    //     substituteStatementListItem(statement.alternate, table);
     // }
 }
 
@@ -133,7 +120,28 @@ function parseReturnStatement(table: Map<string, Expression>, statement: ReturnS
 
 function parseWhileStatement(table: Map<string, Expression>, statement: WhileStatement) {
     // pushLine(table, statement.loc.start.line, 'While Statement', '', generate(statement.test));
-    parseStatementListItem(statement.body, table);
+    substituteStatementListItem(statement.body, table);
+}
+
+function parseExpression(table: Map<string, Expression>, expression: Expression): Expression { //TODO MemberExpression
+    switch (expression.type) {
+        case 'Identifier':
+            return parseIdentifier(table, expression);
+        // break;
+        // case 'Literal':
+        //     parseLiteral(table, expression);
+        //     break;
+        case 'AssignmentExpression':
+            parseAssignmentExpression(table, expression);
+            return expression;
+        // break;
+        case 'MemberExpression':
+            return parseMemberExpression(table, expression);
+        case 'BinaryExpression':
+            return parseBinaryExpression(table, expression);
+        // case 'UpdateExpression':
+        //     parseUpdateExpression(table, expression);
+    }
 }
 
 function parseStatementListItem3(statement: Statement, table: Map<string, Expression>) {
@@ -161,7 +169,7 @@ function parseStatementListItem2(statement: Statement, table: Map<string, Expres
     }
 }
 
-export function parseStatementListItem(statement: Statement, table: Map<string, Expression>) {
+export function substituteStatementListItem(statement: Statement, table: Map<string, Expression>) {
     switch (statement.type) {
         case 'BlockStatement':
             parseBlockStatement(statement, table);
@@ -173,7 +181,7 @@ export function parseStatementListItem(statement: Statement, table: Map<string, 
             parseVariableDeclaration(statement, table);
             break;
         case 'ExpressionStatement':
-            parseExpression(table, statement.expression);
+            statement.expression = parseExpression(table, statement.expression);
             break;
         default:
             parseStatementListItem2(statement, table);
