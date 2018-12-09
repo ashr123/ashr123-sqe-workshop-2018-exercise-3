@@ -1,6 +1,7 @@
-// import $ from 'jquery';
-// import * as codeAnalyzer from './code-analyzer';
-//
+import $ from 'jquery';
+import * as codeAnalyzer from './code-analyzer';
+import {substitute} from './simbolicSubsExp';
+
 function createTable(tableData) {
     const table = document.createElement('table'), tableBody = document.createElement('tbody'); let row = document.createElement('tr');
     table.border = 1;
@@ -21,20 +22,6 @@ function createTable(tableData) {
     }
     table.appendChild(tableBody); $('#myTable').empty(); $('#myTable').append(table);
 }
-
-//
-// $(document).ready(() => {
-//     $('#codeSubmissionButton').click(() => {
-//         const codeToParse = $('#codePlaceholder').val(),
-//             parsedCode = codeAnalyzer.parseCode(codeToParse);
-//         createTable(parsedCode.table);
-//         $('#parsedCode').val(JSON.stringify(parsedCode.code, null, 2));
-//     });
-// });
-
-import $ from 'jquery';
-import * as codeAnalyzer from './code-analyzer';
-import {substitute} from './simbolicSubsExp';
 
 $(document).ready(() => {
     $('#codeSubmissionButton').click(() => {
