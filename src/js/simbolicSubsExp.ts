@@ -17,6 +17,14 @@ import {
     WhileStatement
 } from './programInterfaces';
 
+export function removeUndefinedElements(arr: Array<Statement>): void {
+    for (let i = arr.length; i--;) {
+        if (arr[i] === undefined) {
+            arr.splice(i, 1);
+        }
+    }
+}
+
 function simbolicSubstitute(table: Map<string, Expression>, right: Expression): Expression {
     switch (right.type) {
         case 'Identifier':
@@ -70,8 +78,14 @@ function parseAssignmentExpression(table: Map<string, Expression>, expression: A
 // }
 
 function parseBlockStatement(statement: BlockStatement, table: Map<string, Expression>) { //TODO make a copy from table
-    for (const expressionStatement of statement.body)
-        substituteStatementListItem(expressionStatement, JQuery.extend(true, {}, table))
+    let i=0;
+    for (const expressionStatement of statement.body) {
+        substituteStatementListItem(expressionStatement, JQuery.extend(true, {}, table));
+        if (expressionStatement.type === 'VariableDeclaration')
+            delete statement.body[i];
+        i++
+    }
+    removeUndefinedElements(statement.body);
 }
 
 function functionDeclaration(table: Map<string, Expression>, statement: FunctionDeclaration) {
@@ -182,6 +196,7 @@ export function substituteStatementListItem(statement: Statement, table: Map<str
             break;
         case 'ExpressionStatement':
             statement.expression = parseExpression(table, statement.expression);
+
             break;
         default:
             parseStatementListItem2(statement, table);

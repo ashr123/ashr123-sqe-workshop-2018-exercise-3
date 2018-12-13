@@ -3,6 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const JQuery = require("jquery");
 const Parser = require('expr-eval').Parser;
 const parser = new Parser();
+function removeUndefinedElements(arr) {
+    for (let i = arr.length; i--;) {
+        if (arr[i] === undefined) {
+            arr.splice(i, 1);
+        }
+    }
+}
+exports.removeUndefinedElements = removeUndefinedElements;
 function simbolicSubstitute(table, right) {
     switch (right.type) {
         case 'Identifier':
@@ -48,8 +56,14 @@ function parseAssignmentExpression(table, expression) {
 //     pushLine(table, expression.loc.start.line, 'Update Expression', generate(expression.argument), '', generate(expression));
 // }
 function parseBlockStatement(statement, table) {
-    for (const expressionStatement of statement.body)
+    let i = 0;
+    for (const expressionStatement of statement.body) {
         substituteStatementListItem(expressionStatement, JQuery.extend(true, {}, table));
+        if (expressionStatement.type === 'VariableDeclaration')
+            delete statement.body[i];
+        i++;
+    }
+    removeUndefinedElements(statement.body);
 }
 function functionDeclaration(table, statement) {
     // pushLine(table, statement.loc.start.line, 'Function Declaration', statement.id.name);
