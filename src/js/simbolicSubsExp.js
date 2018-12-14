@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const JQuery = require("jquery");
+const escodegen_1 = require("escodegen");
+const expr_eval_1 = require("expr-eval");
 function removeUndefinedElements(arr) {
     for (let i = arr.length; i--;)
         if (arr[i] === undefined)
@@ -34,8 +36,8 @@ function parseMemberExpression(table, member) {
 }
 function parseIdentifier(table, expression) {
     // pushLine(table, expression.loc.start.line, 'Identifier', expression.name);
-    let temp = table[expression.name] !== undefined ? table[expression.name] : expression;
-    return parseExpression(table, JQuery.extend(true, {}, temp));
+    return table[expression.name] !== undefined ? parseExpression(table, JQuery.extend(true, {}, table[expression.name])) : expression;
+    // return parseExpression(table, JQuery.extend(true, {}, temp));
 }
 // function parseLiteral(table: Map<string, Expression>, expression: Literal): Expression {
 //     // pushLine(table, expression.loc.start.line, 'Literal', '', '', expression.raw);
@@ -51,15 +53,18 @@ function parseAssignmentExpression(table, expression) {
 // function parseUpdateExpression(table: Map<string, Expression>, expression: UpdateExpression) {
 //     pushLine(table, expression.loc.start.line, 'Update Expression', generate(expression.argument), '', generate(expression));
 // }
-function parseBlockStatement(statement, table) {
+function parseBlockStatement(block, table) {
+    const newTable = JQuery.extend(true, {}, table);
     let i = 0;
-    for (const expressionStatement of statement.body) {
-        substituteStatementListItem(expressionStatement, JQuery.extend(true, {}, table));
-        if (expressionStatement.type === 'VariableDeclaration')
-            delete statement.body[i];
+    for (const expressionStatement of block.body) {
+        substituteStatementListItem(expressionStatement, newTable);
+        if (expressionStatement.type === 'VariableDeclaration' ||
+            (expressionStatement.type === 'ExpressionStatement' &&
+                expressionStatement.expression.type === 'AssignmentExpression'))
+            delete block.body[i];
         i++;
     }
-    removeUndefinedElements(statement.body);
+    removeUndefinedElements(block.body);
 }
 function functionDeclaration(table, statement) {
     // pushLine(table, statement.loc.start.line, 'Function Declaration', statement.id.name);
@@ -88,16 +93,20 @@ function parseVariableDeclaration(statement, table) {
 function parseIfStatement(table, statement) {
     // pushLine(table, statement.loc.start.line, 'If Statement', '', generate(statement.test));
     statement.test = parseExpression(table, JQuery.extend(true, {}, statement.test));
-    // if statement.test is true then add property dfdf to statement.test
+    const generatedNode = escodegen_1.generate(statement.test, {
+        format: { semicolons: false }
+    });
+    statement.test['modifiedText'] = expr_eval_1.Parser.evaluate(generatedNode, { x: 1, y: 2, z: 3 /*Parameters table*/ }) ?
+        '<markLightGreen>' + generatedNode + '</markLightGreen>' :
+        '<markRed>' + generatedNode + '</markRed>';
     substituteStatementListItem(statement.consequent, table);
-    if (statement.alternate !== null) {
-        if (statement.alternate.type === 'IfStatement')
-            // pushLine(table, statement.alternate.loc.start.line, 'else');
-            substituteStatementListItem(statement.alternate, table);
-    }
+    if (statement.alternate !== null)
+        substituteStatementListItem(statement.alternate, table);
 }
 function parseReturnStatement(table, statement) {
     // pushLine(table, statement.loc.start.line, 'Return Statement', '', '', statement.argument === null ? null : generate(statement.argument));
+    if (statement.argument !== null)
+        parseExpression(table, statement.argument);
 }
 function parseWhileStatement(table, statement) {
     // pushLine(table, statement.loc.start.line, 'While Statement', '', generate(statement.test));

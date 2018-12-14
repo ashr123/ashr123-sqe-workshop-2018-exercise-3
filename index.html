@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang = "en">
 <head>
-	<meta charset="UTF-8">
-
+	<meta charset = "UTF-8">
 	<style>
 		table {
 			width: 100%;
@@ -19,6 +18,10 @@
 			height: 95%;
 		}
 
+		#myTable {
+			white-space: pre;
+		}
+
 		markRed {
 			background-color: red;
 		}
@@ -27,45 +30,40 @@
 			background-color: lightgreen;
 		}
 	</style>
+	<title>Software Quality Engineering</title>
 </head>
 <body>
 <table>
 	<tr>
 		<td>
-			<div>
-				<label>Enter code here</label>
+			<label for = "codePlaceholder">Enter code here</label>
+		</td>
+		<td>
+			<label for = "parsedCode">Parsed code here</label>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class = "textAreaWrapper">
+				<textarea id = "codePlaceholder" title = "Enter code here"></textarea>
 			</div>
 		</td>
 		<td>
-			<div>
-				<label>Parsed code here</label>
+			<div class = "textAreaWrapper">
+				<textarea id = "parsedCode" title = "Parse code"></textarea>
 			</div>
 		</td>
 	</tr>
 	<tr>
 		<td>
-			<div class="textAreaWrapper">
-				<textarea id="codePlaceholder" title="Enter code here"></textarea>
-			</div>
-		</td>
-		<td>
-			<div class="textAreaWrapper">
-				<textarea id="parsedCode" title="Parse code"></textarea>
-			</div>
-		</td>
-	</tr>
-	<tr>
-		<td>
-			<div>
-				<button id="codeSubmissionButton">Parse code</button>
-			</div>
+			<button id = "codeSubmissionButton">Parse code</button>
 		</td>
 		<td>
 		</td>
 	</tr>
 </table>
-<div id="myTable"></div>
+<div id = "myTable"></div>
 
-<script src="dist/bundle.js"></script>
+<script src = "dist/bundle.js"></script>
 </body>
 </html>
