@@ -27,7 +27,7 @@ function parseBinaryExpression(table: Map<string, Expression>, expression: Binar
     return expression;
 }
 
-function parseMemberExpression(table: Map<string, Expression>, member: MemberExpression)/*: Expression*/ {
+function parseMemberExpression(table: Map<string, Expression>, member: MemberExpression): Expression {
     return undefined;
 }
 
@@ -63,7 +63,6 @@ function parseVariableDeclaration(statement: VariableDeclaration, table: Map<str
 
 function parseAndColorTest(statement: IfStatement | WhileStatement, table: Map<string, Expression>) {
     statement.test = parseExpression(table, JQuery.extend(true, {}, statement.test));
-
     const generatedNode: string = generate(statement.test, {
         format: {semicolons: false}
     });
@@ -106,11 +105,6 @@ function parseExpression(table: Map<string, Expression>, expression: Expression)
     }
 }
 
-function parseStatementListItem3(statement: Statement, table: Map<string, Expression>) {
-    if (statement.type === 'WhileStatement')
-        parseWhileStatement(table, statement);
-}
-
 function parseStatementListItem2(statement: Statement, table: Map<string, Expression>) {
     switch (statement.type) {
         case 'IfStatement':
@@ -119,8 +113,8 @@ function parseStatementListItem2(statement: Statement, table: Map<string, Expres
         case 'ReturnStatement':
             parseReturnStatement(table, statement);
             break;
-        default:
-            parseStatementListItem3(statement, table);
+        case 'WhileStatement':
+            parseWhileStatement(table, statement);
     }
 }
 

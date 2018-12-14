@@ -81,10 +81,6 @@ function parseExpression(table, expression) {
             return parseBinaryExpression(table, expression);
     }
 }
-function parseStatementListItem3(statement, table) {
-    if (statement.type === 'WhileStatement')
-        parseWhileStatement(table, statement);
-}
 function parseStatementListItem2(statement, table) {
     switch (statement.type) {
         case 'IfStatement':
@@ -93,8 +89,8 @@ function parseStatementListItem2(statement, table) {
         case 'ReturnStatement':
             parseReturnStatement(table, statement);
             break;
-        default:
-            parseStatementListItem3(statement, table);
+        case 'WhileStatement':
+            parseWhileStatement(table, statement);
     }
 }
 function substituteStatementListItem(statement, table) {
