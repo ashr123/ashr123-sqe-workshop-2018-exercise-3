@@ -1,29 +1,25 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const JQuery = require("jquery");
-const Parser = require('expr-eval').Parser;
-const parser = new Parser();
 function removeUndefinedElements(arr) {
-    for (let i = arr.length; i--;) {
-        if (arr[i] === undefined) {
+    for (let i = arr.length; i--;)
+        if (arr[i] === undefined)
             arr.splice(i, 1);
-        }
-    }
 }
 exports.removeUndefinedElements = removeUndefinedElements;
-function simbolicSubstitute(table, right) {
-    switch (right.type) {
-        case 'Identifier':
-            return parseIdentifier(table, right);
-        case 'Literal':
-            return right;
-        case 'BinaryExpression':
-            return parseBinaryExpression(table, right);
-    }
-}
+// function simbolicSubstitute(table: Map<string, Expression>, right: Expression): Expression {
+//     switch (right.type) {
+//         case 'Identifier':
+//             return parseIdentifier(table, right);
+//         case 'Literal':
+//             return right;
+//         case 'BinaryExpression':
+//             return parseBinaryExpression(table, right);
+//     }
+// }
 function parseBinaryExpression(table, expression) {
-    expression.left = simbolicSubstitute(table, JQuery.extend(true, {}, expression.left));
-    expression.right = simbolicSubstitute(table, JQuery.extend(true, {}, expression.right));
+    expression.left = parseExpression(table, JQuery.extend(true, {}, expression.left));
+    expression.right = parseExpression(table, JQuery.extend(true, {}, expression.right));
     return expression;
 }
 // function pushLine(table: Map<string, Expression>, line: number,
@@ -39,7 +35,7 @@ function parseMemberExpression(table, member) {
 function parseIdentifier(table, expression) {
     // pushLine(table, expression.loc.start.line, 'Identifier', expression.name);
     let temp = table[expression.name] !== undefined ? table[expression.name] : expression;
-    return simbolicSubstitute(table, JQuery.extend(true, {}, temp));
+    return parseExpression(table, JQuery.extend(true, {}, temp));
 }
 // function parseLiteral(table: Map<string, Expression>, expression: Literal): Expression {
 //     // pushLine(table, expression.loc.start.line, 'Literal', '', '', expression.raw);
@@ -48,7 +44,7 @@ function parseIdentifier(table, expression) {
 function parseAssignmentExpression(table, expression) {
     // pushLine(table, expression.loc.start.line, 'Assignment Expression', generate(expression.left), '', generate(expression.right));
     if (expression.left.type === "Identifier") {
-        table[expression.left.name] = simbolicSubstitute(table, JQuery.extend(true, {}, expression.right)); // update table for later use
+        table[expression.left.name] = parseExpression(table, JQuery.extend(true, {}, expression.right)); // update table for later use
         // expression.right = table[expression.left.name];
     }
 }
@@ -91,12 +87,14 @@ function parseVariableDeclaration(statement, table) {
 // }
 function parseIfStatement(table, statement) {
     // pushLine(table, statement.loc.start.line, 'If Statement', '', generate(statement.test));
-    // substituteStatementListItem(statement.consequent, table);
-    // if (statement.alternate !== null) {
-    //     if (statement.alternate.type === 'IfStatement')
-    //         pushLine(table, statement.alternate.loc.start.line, 'else');
-    //     substituteStatementListItem(statement.alternate, table);
-    // }
+    statement.test = parseExpression(table, JQuery.extend(true, {}, statement.test));
+    // if statement.test is true then add property dfdf to statement.test
+    substituteStatementListItem(statement.consequent, table);
+    if (statement.alternate !== null) {
+        if (statement.alternate.type === 'IfStatement')
+            // pushLine(table, statement.alternate.loc.start.line, 'else');
+            substituteStatementListItem(statement.alternate, table);
+    }
 }
 function parseReturnStatement(table, statement) {
     // pushLine(table, statement.loc.start.line, 'Return Statement', '', '', statement.argument === null ? null : generate(statement.argument));
@@ -110,9 +108,8 @@ function parseExpression(table, expression) {
         case 'Identifier':
             return parseIdentifier(table, expression);
         // break;
-        // case 'Literal':
-        //     parseLiteral(table, expression);
-        //     break;
+        case 'Literal':
+            return expression;
         case 'AssignmentExpression':
             parseAssignmentExpression(table, expression);
             return expression;

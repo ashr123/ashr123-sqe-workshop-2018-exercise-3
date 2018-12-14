@@ -1,7 +1,7 @@
 import * as JQuery from 'jquery';
 import {generate} from 'escodegen';
-const Parser = require('expr-eval').Parser;
-const parser = new Parser();
+// noinspection ES6UnusedImports
+import {Parser} from 'expr-eval';
 import {
     AssignmentExpression,
     BinaryExpression,
@@ -17,28 +17,26 @@ import {
     WhileStatement
 } from './programInterfaces';
 
-export function removeUndefinedElements(arr: Array<Statement>): void {
-    for (let i = arr.length; i--;) {
-        if (arr[i] === undefined) {
+export function removeUndefinedElements(arr: Statement[]): void {
+    for (let i = arr.length; i--;)
+        if (arr[i] === undefined)
             arr.splice(i, 1);
-        }
-    }
 }
 
-function simbolicSubstitute(table: Map<string, Expression>, right: Expression): Expression {
-    switch (right.type) {
-        case 'Identifier':
-            return parseIdentifier(table, right);
-        case 'Literal':
-            return right;
-        case 'BinaryExpression':
-            return parseBinaryExpression(table, right);
-    }
-}
+// function simbolicSubstitute(table: Map<string, Expression>, right: Expression): Expression {
+//     switch (right.type) {
+//         case 'Identifier':
+//             return parseIdentifier(table, right);
+//         case 'Literal':
+//             return right;
+//         case 'BinaryExpression':
+//             return parseBinaryExpression(table, right);
+//     }
+// }
 
 function parseBinaryExpression(table: Map<string, Expression>, expression: BinaryExpression): Expression {
-    expression.left = simbolicSubstitute(table, JQuery.extend(true, {},expression.left));
-    expression.right = simbolicSubstitute(table, JQuery.extend(true, {}, expression.right));
+    expression.left = parseExpression(table, JQuery.extend(true, {}, expression.left));
+    expression.right = parseExpression(table, JQuery.extend(true, {}, expression.right));
     return expression;
 }
 
@@ -57,7 +55,7 @@ function parseMemberExpression(table: Map<string, Expression>, member: MemberExp
 function parseIdentifier(table: Map<string, Expression>, expression: Identifier): Expression {
     // pushLine(table, expression.loc.start.line, 'Identifier', expression.name);
     let temp = table[expression.name] !== undefined ? table[expression.name] : expression;
-    return simbolicSubstitute(table, JQuery.extend(true, {}, temp));
+    return parseExpression(table, JQuery.extend(true, {}, temp));
 }
 
 // function parseLiteral(table: Map<string, Expression>, expression: Literal): Expression {
@@ -68,7 +66,7 @@ function parseIdentifier(table: Map<string, Expression>, expression: Identifier)
 function parseAssignmentExpression(table: Map<string, Expression>, expression: AssignmentExpression) { //TODO Taking care of the right side
     // pushLine(table, expression.loc.start.line, 'Assignment Expression', generate(expression.left), '', generate(expression.right));
     if (expression.left.type === "Identifier") {
-        table[expression.left.name] = simbolicSubstitute(table, JQuery.extend(true, {},expression.right)); // update table for later use
+        table[expression.left.name] = parseExpression(table, JQuery.extend(true, {}, expression.right)); // update table for later use
         // expression.right = table[expression.left.name];
     }
 }
@@ -78,7 +76,7 @@ function parseAssignmentExpression(table: Map<string, Expression>, expression: A
 // }
 
 function parseBlockStatement(statement: BlockStatement, table: Map<string, Expression>) { //TODO make a copy from table
-    let i=0;
+    let i = 0;
     for (const expressionStatement of statement.body) {
         substituteStatementListItem(expressionStatement, JQuery.extend(true, {}, table));
         if (expressionStatement.type === 'VariableDeclaration')
@@ -120,12 +118,14 @@ function parseVariableDeclaration(statement: VariableDeclaration, table: Map<str
 
 function parseIfStatement(table: Map<string, Expression>, statement: IfStatement) { //TODO change for evaluation
     // pushLine(table, statement.loc.start.line, 'If Statement', '', generate(statement.test));
-    // substituteStatementListItem(statement.consequent, table);
-    // if (statement.alternate !== null) {
-    //     if (statement.alternate.type === 'IfStatement')
-    //         pushLine(table, statement.alternate.loc.start.line, 'else');
-    //     substituteStatementListItem(statement.alternate, table);
-    // }
+    statement.test = parseExpression(table, JQuery.extend(true, {}, statement.test));
+    // if statement.test is true then add property dfdf to statement.test
+    substituteStatementListItem(statement.consequent, table);
+    if (statement.alternate !== null) {
+        if (statement.alternate.type === 'IfStatement')
+        // pushLine(table, statement.alternate.loc.start.line, 'else');
+            substituteStatementListItem(statement.alternate, table);
+    }
 }
 
 function parseReturnStatement(table: Map<string, Expression>, statement: ReturnStatement) { //TODO change for evaluation
@@ -142,9 +142,8 @@ function parseExpression(table: Map<string, Expression>, expression: Expression)
         case 'Identifier':
             return parseIdentifier(table, expression);
         // break;
-        // case 'Literal':
-        //     parseLiteral(table, expression);
-        //     break;
+        case 'Literal':
+            return expression;
         case 'AssignmentExpression':
             parseAssignmentExpression(table, expression);
             return expression;
@@ -196,7 +195,6 @@ export function substituteStatementListItem(statement: Statement, table: Map<str
             break;
         case 'ExpressionStatement':
             statement.expression = parseExpression(table, statement.expression);
-
             break;
         default:
             parseStatementListItem2(statement, table);
