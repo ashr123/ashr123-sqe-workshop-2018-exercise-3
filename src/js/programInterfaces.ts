@@ -25,7 +25,16 @@ export type Expression =
     | BinaryExpression
     | MemberExpression
     | UnaryExpression
-    | UpdateExpression;
+    | UpdateExpression
+    | ArrayExpression;
+
+type ArrayExpressionElement = Expression/* | SpreadElement*/;
+
+export interface ArrayExpression {
+    type: 'ArrayExpression';
+    elements: ArrayExpressionElement[]
+    loc: SourceLocation;
+}
 
 export interface UpdateExpression {
     type: 'UpdateExpression';
