@@ -21,7 +21,7 @@ function parseArrayExpression(table, expression) {
 function parseMemberExpression(table, member) {
     member.object = parseExpression(table, member.object);
     member.property = parseExpression(table, member.property);
-    return esprima_1.parseScript(eval(escodegen_1.generate(member)).toString()).body[0].expression;
+    return esprima_1.parseScript(/*eval(*/ escodegen_1.generate(member) /*).toString()*/).body[0].expression;
 }
 function parseIdentifier(table, expression) {
     return table[expression.name] !== undefined ?

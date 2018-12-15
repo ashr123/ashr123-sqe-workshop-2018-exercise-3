@@ -36,7 +36,7 @@ function parseArrayExpression(table: Map<string, Expression>, expression: ArrayE
 function parseMemberExpression(table: Map<string, Expression>, member: MemberExpression): Expression {
     member.object = parseExpression(table, member.object);
     member.property = parseExpression(table, member.property);
-    return parseScript(eval(generate(member)).toString()).body[0].expression;
+    return parseScript(/*eval(*/generate(member)/*).toString()*/).body[0].expression;
 }
 
 function parseIdentifier(table: Map<string, Expression>, expression: Identifier): Expression {
