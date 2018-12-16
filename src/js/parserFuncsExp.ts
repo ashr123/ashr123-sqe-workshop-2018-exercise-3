@@ -112,7 +112,6 @@ function parseWhileStatement(table: Line[], statement: WhileStatement) {
 function parseStatementListItem3(statement: Statement, table: Line[]) {
     if (statement.type === 'WhileStatement')
         parseWhileStatement(table, statement);
-    //TODO: Consider doing 'AssignmentPattern'
 }
 
 function parseStatementListItem2(statement: Statement, table: Line[]) {

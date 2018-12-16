@@ -88,7 +88,6 @@ function parseWhileStatement(table, statement) {
 function parseStatementListItem3(statement, table) {
     if (statement.type === 'WhileStatement')
         parseWhileStatement(table, statement);
-    //TODO: Consider doing 'AssignmentPattern'
 }
 
 function parseStatementListItem2(statement, table) {

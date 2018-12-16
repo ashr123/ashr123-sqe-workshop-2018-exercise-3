@@ -1,8 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const jquery_1 = require("jquery");
 const esprima_1 = require("esprima");
 const escodegen_1 = require("escodegen");
-const jquery_1 = require("jquery");
+let params, paramsExpression;
+function initParams(params) {
+    paramsExpression = esprima_1.parseScript('(' + params + ')').body[0].expression.expressions;
+}
+exports.initParams = initParams;
 function removeUndefinedElements(arr) {
     for (let i = arr.length; i--;)
         if (arr[i] === undefined)
@@ -12,7 +17,6 @@ exports.removeUndefinedElements = removeUndefinedElements;
 function parseBinaryExpression(table, expression) {
     expression.left = parseExpression(table, jquery_1.extend(true, {}, expression.left));
     expression.right = parseExpression(table, jquery_1.extend(true, {}, expression.right));
-    return expression;
 }
 function parseArrayExpression(table, expression) {
     for (let i in expression.elements)
@@ -29,7 +33,7 @@ function parseIdentifier(table, expression) {
         expression;
 }
 function parseAssignmentExpression(table, expression) {
-    if (expression.left.type === "Identifier")
+    if (expression.left.type === 'Identifier')
         table[expression.left.name] = parseExpression(table, jquery_1.extend(true, {}, expression.right));
 }
 function parseBlockStatement(block, table) {
@@ -48,30 +52,16 @@ function parseVariableDeclaration(statement, table) {
     for (const decl of statement.declarations)
         table[decl.id.name] = decl.init;
 }
-// function foo(x, y, z) {
-//     if ("moshe" === "moshe") {
-//         true;
-//     }
-//     let a = x + 1;
-//     let b = a + y;
-//     let c = 4;
-//
-//     if (b < z) {
-//         c = 5;
-//         return x + y + z + c;
-//     } else if (b < z * 2) {
-//         c = x + 5;
-//         return x + y + z + c;
-//     } else {
-//         //c = z + 5;
-//         return x + y + z + c;
-//     }
-// }
+function parseFunctionDeclaration(table, statement) {
+    // pushLine(table, statement.loc.start.line, 'Function Declaration', statement.id.name);
+    params = {};
+    for (const i in statement.params)
+        // pushLine(table, param.loc.start.line, 'Variable Declaration', param.name);
+        params[statement.params[i].name] = esprima_1.parseScript(eval(escodegen_1.generate(paramsExpression[i])).toString()).body[0].expression;
+    substituteStatementListItem(statement.body, table);
+}
 function parseAndColorTest(statement, table) {
     statement.test = parseExpression(table, jquery_1.extend(true, {}, statement.test));
-    const params = { x: '[0, 2, 1][2]', y: '2', z: '3' }; //TODO remove this
-    for (const key in params) //TODO refactor extract method
-        params[key] = esprima_1.parseScript(eval(params[key]).toString()).body[0].expression;
     const generatedNode = escodegen_1.generate(statement.test, {
         format: { semicolons: false }
     });
@@ -106,7 +96,8 @@ function parseExpression(table, expression) {
         case 'MemberExpression':
             return parseMemberExpression(table, expression);
         case 'BinaryExpression':
-            return parseBinaryExpression(table, expression);
+            parseBinaryExpression(table, expression);
+            return expression;
         case 'ArrayExpression':
             parseArrayExpression(table, expression);
             return expression;
@@ -130,7 +121,7 @@ function substituteStatementListItem(statement, table) {
             parseBlockStatement(statement, table);
             break;
         case 'FunctionDeclaration':
-            substituteStatementListItem(statement.body, table);
+            parseFunctionDeclaration(table, statement);
             break;
         case 'VariableDeclaration':
             parseVariableDeclaration(statement, table);

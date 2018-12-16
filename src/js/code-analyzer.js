@@ -1,9 +1,10 @@
 import {parseScript} from 'esprima';
-import {removeUndefinedElements, substituteStatementListItem} from './simbolicSubsExp';
+import {initParams, removeUndefinedElements, substituteStatementListItem} from './simbolicSubsExp';
 
-export const parseCode = codeToParse => {
+export const parseCode = (codeToParse, params) => {
     const parsedCode = parseScript(codeToParse, {loc: true}),
         varTable = {};
+    initParams(params);
     for (const i in parsedCode.body) {
         substituteStatementListItem(parsedCode.body[i], varTable);
         if (parsedCode.body[i].type === 'VariableDeclaration' ||
