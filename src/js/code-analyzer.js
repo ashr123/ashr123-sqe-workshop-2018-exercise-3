@@ -3,7 +3,7 @@ import {initParams, removeUndefinedElements, substituteStatementListItem} from '
 
 export const parseCode = (codeToParse, params) => {
     const parsedCode = parseScript(codeToParse, {loc: true}),
-        varTable = {};
+        varTable = new Map();
     initParams(params);
     for (const i in parsedCode.body) {
         substituteStatementListItem(parsedCode.body[i], varTable);

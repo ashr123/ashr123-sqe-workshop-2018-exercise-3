@@ -1,6 +1,6 @@
-import {extend} from 'jquery';
 import {parseScript} from 'esprima';
 import {generate} from 'escodegen';
+import {extend} from 'jquery';
 import {
     ArrayExpression,
     AssignmentExpression,
@@ -17,7 +17,7 @@ import {
     WhileStatement
 } from './programInterfaces';
 
-let params, paramsExpression: Expression[];
+let params: Map<string, Expression> = new Map<string, Expression>(), paramsExpression: Expression[];
 
 export function initParams(params: string) {
     paramsExpression = parseScript('(' + params + ')').body[0].expression.expressions;
@@ -75,10 +75,8 @@ function parseVariableDeclaration(statement: VariableDeclaration, table: Map<str
 }
 
 function parseFunctionDeclaration(table: Map<string, Expression>, statement: FunctionDeclaration) {
-    // pushLine(table, statement.loc.start.line, 'Function Declaration', statement.id.name);
-    params = {};
+    params.clear();
     for (const i in statement.params)
-        // pushLine(table, param.loc.start.line, 'Variable Declaration', param.name);
         params[statement.params[i].name] = parseScript(eval(generate(paramsExpression[i])).toString()).body[0].expression;
     substituteStatementListItem(statement.body, table);
 }

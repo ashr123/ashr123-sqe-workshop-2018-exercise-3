@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const jquery_1 = require("jquery");
 const esprima_1 = require("esprima");
 const escodegen_1 = require("escodegen");
-let params, paramsExpression;
+const jquery_1 = require("jquery");
+let params = new Map(), paramsExpression;
 function initParams(params) {
     paramsExpression = esprima_1.parseScript('(' + params + ')').body[0].expression.expressions;
 }
@@ -53,10 +53,8 @@ function parseVariableDeclaration(statement, table) {
         table[decl.id.name] = decl.init;
 }
 function parseFunctionDeclaration(table, statement) {
-    // pushLine(table, statement.loc.start.line, 'Function Declaration', statement.id.name);
-    params = {};
+    params.clear();
     for (const i in statement.params)
-        // pushLine(table, param.loc.start.line, 'Variable Declaration', param.name);
         params[statement.params[i].name] = esprima_1.parseScript(eval(escodegen_1.generate(paramsExpression[i])).toString()).body[0].expression;
     substituteStatementListItem(statement.body, table);
 }
