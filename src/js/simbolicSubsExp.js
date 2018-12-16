@@ -82,6 +82,16 @@ function parseWhileStatement(table, statement) {
     parseAndColorTest(statement, table);
     substituteStatementListItem(statement.body, table);
 }
+function parseExpression2(table, expression) {
+    switch (expression.type) {
+        case 'BinaryExpression':
+            parseBinaryExpression(table, expression);
+            return expression;
+        case 'ArrayExpression':
+            parseArrayExpression(table, expression);
+            return expression;
+    }
+}
 function parseExpression(table, expression) {
     switch (expression.type) {
         case 'Identifier':
@@ -93,12 +103,8 @@ function parseExpression(table, expression) {
             return expression;
         case 'MemberExpression':
             return parseMemberExpression(table, expression);
-        case 'BinaryExpression':
-            parseBinaryExpression(table, expression);
-            return expression;
-        case 'ArrayExpression':
-            parseArrayExpression(table, expression);
-            return expression;
+        default:
+            return parseExpression2(table, expression);
     }
 }
 function parseStatementListItem2(statement, table) {

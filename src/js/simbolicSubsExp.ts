@@ -19,7 +19,7 @@ import {
 
 let params: Map<string, Expression> = new Map<string, Expression>(), paramsExpression: Expression[];
 
-export function initParams(params: string) {
+export function initParams(params: string): void {
     paramsExpression = parseScript('(' + params + ')').body[0].expression.expressions;
 }
 
@@ -109,6 +109,17 @@ function parseWhileStatement(table: Map<string, Expression>, statement: WhileSta
     substituteStatementListItem(statement.body, table);
 }
 
+function parseExpression2(table: Map<string, Expression>, expression: Expression): Expression {
+    switch (expression.type) {
+        case 'BinaryExpression':
+            parseBinaryExpression(table, expression);
+            return expression;
+        case 'ArrayExpression':
+            parseArrayExpression(table, expression);
+            return expression;
+    }
+}
+
 function parseExpression(table: Map<string, Expression>, expression: Expression): Expression {
     switch (expression.type) {
         case 'Identifier':
@@ -120,12 +131,8 @@ function parseExpression(table: Map<string, Expression>, expression: Expression)
             return expression;
         case 'MemberExpression':
             return parseMemberExpression(table, expression);
-        case 'BinaryExpression':
-            parseBinaryExpression(table, expression);
-            return expression;
-        case 'ArrayExpression':
-            parseArrayExpression(table, expression);
-            return expression;
+        default:
+            return parseExpression2(table, expression);
     }
 }
 
