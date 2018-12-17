@@ -3,7 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const esprima_1 = require("esprima");
 const escodegen_1 = require("escodegen");
 const jquery_1 = require("jquery");
-let params = new Map(), paramsExpression;
+const params = new Map();
+let paramsExpression;
 function initParams(params) {
     paramsExpression = esprima_1.parseScript('(' + params + ')').body[0].expression.expressions;
 }
@@ -22,10 +23,10 @@ function parseArrayExpression(table, expression) {
     for (let i in expression.elements)
         expression.elements[i] = parseExpression(table, expression.elements[i]);
 }
-function parseMemberExpression(table, member) {
-    member.object = parseExpression(table, member.object);
-    member.property = parseExpression(table, member.property);
-    return esprima_1.parseScript(/*eval(*/ escodegen_1.generate(member) /*).toString()*/).body[0].expression;
+function parseMemberExpression(table, expression) {
+    expression.object = parseExpression(table, expression.object);
+    expression.property = parseExpression(table, expression.property);
+    return esprima_1.parseScript(/*eval(*/ escodegen_1.generate(expression) /*).toString()*/).body[0].expression;
 }
 function parseIdentifier(table, expression) {
     return table[expression.name] !== undefined ?
@@ -36,10 +37,10 @@ function parseAssignmentExpression(table, expression) {
     if (expression.left.type === 'Identifier')
         table[expression.left.name] = parseExpression(table, jquery_1.extend(true, {}, expression.right));
 }
-function parseBlockStatement(block, table) {
-    const newTable = jquery_1.extend(true, {}, table);
+function parseBlockStatement(table, block) {
+    const newTable = jquery_1.extend(true, {}, table); //TODO unite the old array and the new
     for (const i in block.body) {
-        substituteStatementListItem(block.body[i], newTable);
+        substituteStatementListItem(newTable, block.body[i]);
         if (block.body[i].type === 'VariableDeclaration' ||
             (block.body[i].type === 'ExpressionStatement' &&
                 // @ts-ignore
@@ -48,7 +49,7 @@ function parseBlockStatement(block, table) {
     }
     removeUndefinedElements(block.body);
 }
-function parseVariableDeclaration(statement, table) {
+function parseVariableDeclaration(table, statement) {
     for (const decl of statement.declarations)
         table[decl.id.name] = decl.init;
 }
@@ -56,7 +57,7 @@ function parseFunctionDeclaration(table, statement) {
     params.clear();
     for (const i in statement.params)
         params[statement.params[i].name] = esprima_1.parseScript(eval(escodegen_1.generate(paramsExpression[i])).toString()).body[0].expression;
-    substituteStatementListItem(statement.body, table);
+    substituteStatementListItem(table, statement.body);
 }
 function parseAndColorTest(statement, table) {
     statement.test = parseExpression(table, jquery_1.extend(true, {}, statement.test));
@@ -70,9 +71,9 @@ function parseAndColorTest(statement, table) {
 }
 function parseIfStatement(table, statement) {
     parseAndColorTest(statement, table);
-    substituteStatementListItem(statement.consequent, table);
+    substituteStatementListItem(table, statement.consequent);
     if (statement.alternate !== null)
-        substituteStatementListItem(statement.alternate, table);
+        substituteStatementListItem(table, statement.alternate);
 }
 function parseReturnStatement(table, statement) {
     if (statement.argument !== null)
@@ -80,7 +81,7 @@ function parseReturnStatement(table, statement) {
 }
 function parseWhileStatement(table, statement) {
     parseAndColorTest(statement, table);
-    substituteStatementListItem(statement.body, table);
+    substituteStatementListItem(table, statement.body);
 }
 function parseExpression2(table, expression) {
     switch (expression.type) {
@@ -107,7 +108,7 @@ function parseExpression(table, expression) {
             return parseExpression2(table, expression);
     }
 }
-function parseStatementListItem2(statement, table) {
+function parseStatementListItem2(table, statement) {
     switch (statement.type) {
         case 'IfStatement':
             parseIfStatement(table, statement);
@@ -119,22 +120,22 @@ function parseStatementListItem2(statement, table) {
             parseWhileStatement(table, statement);
     }
 }
-function substituteStatementListItem(statement, table) {
+function substituteStatementListItem(table, statement) {
     switch (statement.type) {
         case 'BlockStatement':
-            parseBlockStatement(statement, table);
+            parseBlockStatement(table, statement);
             break;
         case 'FunctionDeclaration':
             parseFunctionDeclaration(table, statement);
             break;
         case 'VariableDeclaration':
-            parseVariableDeclaration(statement, table);
+            parseVariableDeclaration(table, statement);
             break;
         case 'ExpressionStatement':
             statement.expression = parseExpression(table, statement.expression);
             break;
         default:
-            parseStatementListItem2(statement, table);
+            parseStatementListItem2(table, statement);
     }
 }
 exports.substituteStatementListItem = substituteStatementListItem;

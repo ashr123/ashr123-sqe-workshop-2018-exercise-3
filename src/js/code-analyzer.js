@@ -1,12 +1,12 @@
 import {parseScript} from 'esprima';
 import {initParams, removeUndefinedElements, substituteStatementListItem} from './simbolicSubsExp';
 
-export const parseCode = (codeToParse, params) => {
+export const parseCode = (codeToParse, params) => {//TODO read all VariableDecleration statements and then handle the rest
     const parsedCode = parseScript(codeToParse, {loc: true}),
         varTable = new Map();
     initParams(params);
     for (const i in parsedCode.body) {
-        substituteStatementListItem(parsedCode.body[i], varTable);
+        substituteStatementListItem(varTable, parsedCode.body[i]);
         if (parsedCode.body[i].type === 'VariableDeclaration' ||
             (parsedCode.body[i].type === 'ExpressionStatement' &&
                 parsedCode.body[i].expression.type === 'AssignmentExpression'))
