@@ -53,7 +53,6 @@ function parseBlockStatement(table, block) {
         substituteStatementListItem(newTable, block.body[i]);
         if (block.body[i].type === 'VariableDeclaration' ||
             (block.body[i].type === 'ExpressionStatement' &&
-                // @ts-ignore
                 block.body[i].expression.type === 'AssignmentExpression'))
             delete block.body[i];
     }

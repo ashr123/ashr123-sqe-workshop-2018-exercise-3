@@ -9,15 +9,10 @@ describe('The javascript parser', () => {
 
     it('testing deepEqual ' +
         '\'let a=4;\n' +
-        'a;\n' +
-        'function foo (x, y, z) {\n' +
-        '    a;\n' +
-        '}\'', () => {
+        'a;\'', () => {
         assert.deepEqual(codeAnalyzer.parseCode(
-            'let a=4; a;', ''),
-
-
-        {
+            'let a=4;\n' +
+            'a;', ''), {
             'type': 'Program',
             'body': [
                 {
@@ -521,6 +516,106 @@ describe('The javascript parser', () => {
                     'generator': false,
                     'expression': false,
                     'async': false
+                }
+            ],
+            'sourceType': 'script'
+        });
+    });
+
+    it('testing deepEqual ' +
+        '\'let a = [2, \'moshe\'];\n' +
+        'if (a[1] === \'moshe\')\n' +
+        '    true;\n' +
+        'else\n' +
+        '    false;\'', () => {
+        assert.deepEqual(codeAnalyzer.parseCode('let a = [2, \'moshe\'];\n' +
+            'if (a[1] === \'moshe\')\n' +
+            '    true;\n' +
+            'else\n' +
+            '    false;', '1, 2, 3'), {
+            'type': 'Program',
+            'body': [
+                {
+                    'type': 'IfStatement',
+                    'test': {
+                        'type': 'BinaryExpression',
+                        'operator': '===',
+                        'left': {
+                            'type': 'MemberExpression',
+                            'computed': true,
+                            'object': {
+                                'type': 'ArrayExpression',
+                                'elements': [
+                                    {
+                                        'type': 'Literal',
+                                        'value': 2,
+                                        'raw': '2'
+                                    },
+                                    {
+                                        'type': 'Literal',
+                                        'value': 'moshe',
+                                        'raw': '\'moshe\''
+                                    }
+                                ]
+                            },
+                            'property': {
+                                'type': 'Literal',
+                                'value': 1,
+                                'raw': '1'
+                            }
+                        },
+                        'right': {
+                            'type': 'Literal',
+                            'value': 'moshe',
+                            'raw': '\'moshe\''
+                        },
+                        'modifiedText': '<markLightGreen>[\n    2,\n    \'moshe\'\n][1] === \'moshe\'</markLightGreen>'
+                    },
+                    'consequent': {
+                        'type': 'ExpressionStatement',
+                        'expression': {
+                            'type': 'Literal',
+                            'value': true,
+                            'raw': 'true'
+                        }
+                    },
+                    'alternate': {
+                        'type': 'ExpressionStatement',
+                        'expression': {
+                            'type': 'Literal',
+                            'value': false,
+                            'raw': 'false'
+                        }
+                    }
+                }
+            ],
+            'sourceType': 'script'
+        });
+    });
+
+    it('testing deepEqual ' +
+        '\'\'', () => {
+        assert.deepEqual(codeAnalyzer.parseCode('', ''), {
+            'type': 'Program',
+            'body': [],
+            'sourceType': 'script'
+        });
+    });
+
+    it('testing deepEqual ' +
+        '\'let roy = \'roy\';\n' +
+        'roy;\'', () => {
+        assert.deepEqual(codeAnalyzer.parseCode('let roy = \'roy\';\n' +
+            'roy;', ''), {
+            'type': 'Program',
+            'body': [
+                {
+                    'type': 'ExpressionStatement',
+                    'expression': {
+                        'type': 'Literal',
+                        'value': 'roy',
+                        'raw': '\'roy\''
+                    }
                 }
             ],
             'sourceType': 'script'
