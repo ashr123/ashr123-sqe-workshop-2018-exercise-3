@@ -1,13 +1,17 @@
 import {parseScript} from 'esprima';
 import {generate} from 'escodegen';
-import {extend} from 'jquery';
+
 const params = new Map();
 let paramsExpression;
 
 export function initParams(params) {
-    if (params === '')
-        return;
-    paramsExpression = parseScript('(' + params + ')').body[0].expression.expressions;
+    paramsExpression = params === '' ?
+        [] :
+        parseScript('[' + params + ']').body[0].expression.elements;
+}
+
+function deepClone(object) {
+    return JSON.parse(JSON.stringify(object));
 }
 
 export function removeUndefinedElements(arr) {
@@ -17,8 +21,8 @@ export function removeUndefinedElements(arr) {
 }
 
 function parseBinaryExpression(table, expression) {
-    expression.left = parseExpression(table, extend(true, {}, expression.left));
-    expression.right = parseExpression(table, extend(true, {}, expression.right));
+    expression.left = parseExpression(table, deepClone(expression.left));
+    expression.right = parseExpression(table, deepClone(expression.right));
 }
 
 function parseArrayExpression(table, expression) {
@@ -33,19 +37,18 @@ function parseMemberExpression(table, expression) {
 }
 
 function parseIdentifier(table, expression) {
-    console.log(extend);
     return table[expression.name] !== undefined ?
-        parseExpression(table, extend(true, {}, table[expression.name])) :
+        parseExpression(table, deepClone(table[expression.name])) :
         expression;
 }
 
 function parseAssignmentExpression(table, expression) {
     if (expression.left.type === 'Identifier')
-        table[expression.left.name] = parseExpression(table, extend(true, {}, expression.right));
+        table[expression.left.name] = parseExpression(table, deepClone(expression.right));
 }
 
 function parseBlockStatement(table, block) {
-    const newTable = extend(true, {}, table); //TODO unite the old array and the new
+    const newTable = deepClone(table); //TODO unite the old array and the new
     for (const i in block.body) {
         substituteStatementListItem(newTable, block.body[i]);
         if (block.body[i].type === 'VariableDeclaration' ||
@@ -70,12 +73,12 @@ function parseFunctionDeclaration(table, statement) {
 }
 
 function parseAndColorTest(statement, table) {
-    statement.test = parseExpression(table, extend(true, {}, statement.test));
+    statement.test = parseExpression(table, deepClone(statement.test));
     const generatedNode = generate(statement.test, {
         format: {semicolons: false}
     });
     statement.test['modifiedText'] =
-        eval(generate(parseExpression(extend(true, {}, params), extend(true, {}, statement.test)))) ?
+        eval(generate(parseExpression(deepClone(params), deepClone(statement.test)))) ?
             '<markLightGreen>' + generatedNode + '</markLightGreen>' :
             '<markRed>' + generatedNode + '</markRed>';
 }
@@ -93,7 +96,8 @@ function parseReturnStatement(table, statement) {
 }
 
 function parseWhileStatement(table, statement) {
-    parseAndColorTest(statement, table);
+    // parseAndColorTest(statement, table);
+    statement.test = parseExpression(table, deepClone(statement.test));
     substituteStatementListItem(table, statement.body);
 }
 
