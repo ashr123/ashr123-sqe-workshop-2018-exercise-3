@@ -13,7 +13,24 @@ describe('The javascript parser', () => {
         'function foo (x, y, z) {\n' +
         '    a;\n' +
         '}\'', () => {
-        assert.deepEqual(codeAnalyzer.parseCode('', '1, 2, 3'), {type: 'Program', body: [], sourceType: 'script'});
+        assert.deepEqual(codeAnalyzer.parseCode(
+            'let a=4; a;', '1, 2, 3'),
+
+
+        {
+            'type': 'Program',
+            'body': [
+                {
+                    'type': 'ExpressionStatement',
+                    'expression': {
+                        'type': 'Literal',
+                        'value': 4,
+                        'raw': '4'
+                    }
+                }
+            ],
+            'sourceType': 'script'
+        });
     });
 
     // it('testing deepStrictEqual ' +

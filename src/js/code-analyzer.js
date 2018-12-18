@@ -1,8 +1,8 @@
 import {parseScript} from 'esprima';
-import {initParams, removeUndefinedElements, substituteStatementListItem} from './simbolicSubsExp';
+import {initParams, removeUndefinedElements, substituteStatementListItem} from './simbolicSubs';
 
 export const parseCode = (codeToParse, params) => {//TODO read all VariableDecleration statements and then handle the rest
-    const parsedCode = parseScript(codeToParse, {loc: true}),
+    const parsedCode = parseScript(codeToParse),
         varTable = new Map();
     initParams(params);
     for (const i in parsedCode.body) {
