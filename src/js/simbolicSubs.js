@@ -27,6 +27,7 @@ function parseBinaryExpression(table, expression) {
 
 function parseArrayExpression(table, expression) {
     for (let i in expression.elements)
+        // noinspection JSUnfilteredForInLoop
         expression.elements[i] = parseExpression(table, expression.elements[i]);
 }
 
@@ -50,10 +51,13 @@ function parseAssignmentExpression(table, expression) {
 function parseBlockStatement(table, block) {
     const newTable = deepClone(table); //TODO unite the old array and the new
     for (const i in block.body) {
+        // noinspection JSUnfilteredForInLoop
         substituteStatementListItem(newTable, block.body[i]);
+        // noinspection JSUnfilteredForInLoop
         if (block.body[i].type === 'VariableDeclaration' ||
             (block.body[i].type === 'ExpressionStatement' &&
                 block.body[i].expression.type === 'AssignmentExpression'))
+            // noinspection JSUnfilteredForInLoop
             delete block.body[i];
     }
     removeUndefinedElements(block.body);
@@ -67,6 +71,7 @@ function parseVariableDeclaration(table, statement) {
 function parseFunctionDeclaration(table, statement) {
     params.clear();
     for (const i in statement.params)
+        // noinspection JSUnfilteredForInLoop
         params[statement.params[i].name] = parseScript(eval(generate(paramsExpression[i])).toString()).body[0].expression;
     substituteStatementListItem(table, statement.body);
 }
