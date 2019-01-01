@@ -3,13 +3,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const esprima_1 = require("esprima");
 const escodegen_1 = require("escodegen");
 const params = new Map();
+exports.verticesCounter = makeCounter('vertices'), exports.edgesCounter = makeCounter('edge');
 let paramsExpression;
-function initParams(params) {
+function makeCounter(prefix) {
+    function* makeCounter() {
+        let count = 0;
+        while (true)
+            yield count++;
+    }
+    const counter = makeCounter();
+    return () => prefix + counter.next().value;
+}
+function init(params) {
+    exports.verticesCounter = makeCounter('vertices');
+    exports.edgesCounter = makeCounter('edge');
     paramsExpression = params === '' ?
         [] :
         esprima_1.parseScript('[' + params + ']').body[0].expression.elements;
 }
-exports.initParams = initParams;
+exports.init = init;
 function deepClone(object) {
     return JSON.parse(JSON.stringify(object));
 }
@@ -43,19 +55,14 @@ function parseAssignmentExpression(table, expression, verticesTable, edgesTable)
 }
 function parseBlockStatement(table, block, verticesTable, edgesTable) {
     const newTable = deepClone(table); //TODO unite the old array and the new
-    for (const i in block.body) {
+    for (const i in block.body)
         substituteStatementListItem(newTable, block.body[i], verticesTable, edgesTable);
-        if (block.body[i].type === 'VariableDeclaration' ||
-            (block.body[i].type === 'ExpressionStatement' &&
-                // @ts-ignore
-                block.body[i].expression.type === 'AssignmentExpression'))
-            delete block.body[i];
-    }
-    removeUndefinedElements(block.body);
 }
 function parseVariableDeclaration(table, statement, verticesTable, edgesTable) {
-    for (const decl of statement.declarations)
+    for (const decl of statement.declarations) {
         table[decl.id.name] = decl.init;
+        // verticesTable.push(generate(decl) + '\n')
+    }
 }
 function parseFunctionDeclaration(table, statement, verticesTable, edgesTable) {
     params.clear();

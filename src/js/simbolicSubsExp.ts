@@ -17,9 +17,26 @@ import {
 } from './programInterfaces';
 
 const params: Map<string, Expression> = new Map<string, Expression>();
+export let
+    verticesCounter: () => string = makeCounter('vertices'),
+    edgesCounter: () => string = makeCounter('edge');
 let paramsExpression: Expression[];
 
-export function initParams(params: string): void {
+
+function makeCounter(prefix: string): () => string {
+    function* makeCounter(): IterableIterator<number> {
+        let count = 0;
+        while (true)
+            yield count++;
+    }
+
+    const counter = makeCounter();
+    return () => prefix + counter.next().value;
+}
+
+export function init(params: string): void {
+    verticesCounter = makeCounter('vertices');
+    edgesCounter = makeCounter('edge');
     paramsExpression = params === '' ?
         [] :
         parseScript('[' + params + ']').body[0].expression.elements;
@@ -64,20 +81,16 @@ function parseAssignmentExpression(table: Map<string, Expression>, expression: A
 
 function parseBlockStatement(table: Map<string, Expression>, block: BlockStatement, verticesTable: string[], edgesTable: string[]): void {
     const newTable: Map<string, Expression> = deepClone(table);//TODO unite the old array and the new
-    for (const i in block.body) {
+    for (const i in block.body)
         substituteStatementListItem(newTable, block.body[i], verticesTable, edgesTable);
-        if (block.body[i].type === 'VariableDeclaration' ||
-            (block.body[i].type === 'ExpressionStatement' &&
-                // @ts-ignore
-                block.body[i].expression.type === 'AssignmentExpression'))
-            delete block.body[i];
-    }
-    removeUndefinedElements(block.body);
 }
 
 function parseVariableDeclaration(table: Map<string, Expression>, statement: VariableDeclaration, verticesTable: string[], edgesTable: string[]): void {
-    for (const decl of statement.declarations)
+    for (const decl of statement.declarations) {
         table[decl.id.name] = decl.init;
+        // verticesTable.push(generate(decl) + '\n')
+
+    }
 }
 
 function parseFunctionDeclaration(table: Map<string, Expression>, statement: FunctionDeclaration, verticesTable: string[], edgesTable: string[]) {
