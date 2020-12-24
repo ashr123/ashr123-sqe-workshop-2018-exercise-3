@@ -23,7 +23,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@types/mocha": "^5.2.5",
-		"acorn": "^6.0.4",
+		"acorn": "^6.4.1",
 		"assert": "^1.4.1",
 		"d3-graphviz": "^2.6.0",
 		"escodegen": "^1.11.0",
