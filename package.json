@@ -30,8 +30,8 @@
 		"esgraph": "^0.3.0",
 		"esprima": "^4.0.0",
 		"jquery": "^3.5.0",
-		"npm": "^6.14.6",
-		"npm-registry-fetch": "^4.0.5",
+		"npm": "^9.4.0",
+		"npm-registry-fetch": "^14.0.3",
 		"socks": "^2.2.2",
 		"ts-node": "^7.0.1",
 		"typescript": "^3.2.2"
